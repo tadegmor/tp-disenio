@@ -1,2 +1,2 @@
-# tp-deso
-Repositorio para los TPs de Diseño y DESO
+# tp-disenio
+Repositorio para la implementación del TP de Diseño de Sistemas de Información
