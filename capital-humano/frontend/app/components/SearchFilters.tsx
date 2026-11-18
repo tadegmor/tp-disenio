@@ -58,7 +58,7 @@ export default function SearchFilters({
       </p>
 
       <div className="flex justify-center pt-1">
-        <Button type="submit" disabled={!puedeBuscar || cargando} className="min-w-32">
+        <Button type="submit" disabled={cargando} className="min-w-32">
           {cargando ? "Buscando…" : "Buscar"}
         </Button>
       </div>

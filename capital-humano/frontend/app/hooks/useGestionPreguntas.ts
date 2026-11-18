@@ -44,16 +44,25 @@ export function useGestionPreguntas() {
   }, []);
 
   const cambiarCriterio = useCallback(
-    (campo: keyof CriteriosBusqueda, valor: string) =>
-      setCriterios((prev) => ({ ...prev, [campo]: valor })),
-    [],
+    (campo: keyof CriteriosBusqueda, valor: string) => {
+        setCriterios((prev) => ({ ...prev, [campo]: valor }));
+        setMensaje((prev) => (prev?.tipo === "error" ? null : prev));
+    },
+    [] 
   );
 
   const buscar = useCallback(async () => {
-    if (!puedeBuscar || cargando) return;
+    if(cargando) return;
+    if(!puedeBuscar) {
+      setMensaje({
+        tipo: "error",
+        texto: "Debe ingresar al menos un dato para realizar la búsqueda.",
+      });
+      return;
+    }
     setMensaje(null);
     await ejecutarBusqueda({ ...criterios });
-  }, [puedeBuscar, cargando, criterios, ejecutarBusqueda]);
+  }, [puedeBuscar, cargando, criterios, ejecutarBusqueda, setMensaje]);
 
   const nuevaBusqueda = useCallback(() => {
     setResultados(null);
