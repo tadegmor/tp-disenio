@@ -1,32 +1,44 @@
-import type { Mensaje, TipoMensaje } from "../types";
+"use client";
 
-const ESTILOS: Record<TipoMensaje, string> = {
-  exito: "border-emerald-200 bg-emerald-50 text-emerald-800",
-  error: "border-red-200 bg-red-50 text-red-800",
-  info: "border-blue-200 bg-blue-50 text-blue-800",
-};
+export interface Mensaje {
+  tipo: "exito" | "error" | "info" | "advertencia";
+  texto: string;
+}
 
 interface FeedbackProps {
   mensaje: Mensaje;
   onCerrar: () => void;
+  detalles?: string[];
 }
 
-export default function Feedback({ mensaje, onCerrar }: FeedbackProps) {
+export default function Feedback({ mensaje, onCerrar, detalles = [] }: FeedbackProps) {
+  const estilosPorTipo: Record<Mensaje["tipo"], string> = {
+    exito: "border-emerald-200 bg-emerald-50 text-emerald-900",
+    error: "border-red-200 bg-red-50 text-red-800",
+    info: "border-blue-200 bg-blue-50 text-blue-900",
+    advertencia: "border-amber-200 bg-amber-50 text-amber-900",
+  };
+
   return (
     <div
-      role={mensaje.tipo === "error" ? "alert" : "status"}
-      className={`mb-6 flex items-start justify-between gap-4 rounded-lg border px-4 py-3 text-sm ${ESTILOS[mensaje.tipo]}`}
+      role="alert"
+      className={`mb-6 flex items-start justify-between gap-4 rounded-lg border px-4 py-3 text-sm ${estilosPorTipo[mensaje.tipo]}`}
     >
-      <p>{mensaje.texto}</p>
+      <div>
+        <p>{mensaje.texto}</p>
+        {detalles.length > 0 && (
+          <ul className="mt-1 list-disc pl-5">
+            {detalles.map((d) => <li key={d}>{d}</li>)}
+          </ul>
+        )}
+      </div>
       <button
         type="button"
         onClick={onCerrar}
         aria-label="Cerrar mensaje"
-        className="-mr-1 rounded p-1 opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-current"
+        className="rounded px-1.5 py-0.5 text-xs font-semibold opacity-70 hover:opacity-100"
       >
-        <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4" aria-hidden="true">
-          <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
-        </svg>
+        ✕
       </button>
     </div>
   );
