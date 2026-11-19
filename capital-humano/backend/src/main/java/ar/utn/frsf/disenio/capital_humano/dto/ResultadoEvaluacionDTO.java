@@ -10,9 +10,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ResultadoEvaluacionDTO {
+    /** null mientras la evaluación está solo preparada (todavía no se guardó). */
     private Long cuestionarioId;
+    private Long candidatoId;
     private String apellidoCandidato;
     private String nombreCandidato;
+    private String numeroCandidato;
     private String tipoDocumento;
     private String numeroDocumento;
     private String claveIngreso;

@@ -3,6 +3,7 @@ package ar.utn.frsf.disenio.capital_humano.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "puestos")
@@ -27,5 +28,6 @@ public class Puesto {
 
     // Relación con las competencias del puesto a través de la tabla intermedia
     @OneToMany(mappedBy = "puesto", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<PuestoCompetencia> competenciasPuesto;
 }

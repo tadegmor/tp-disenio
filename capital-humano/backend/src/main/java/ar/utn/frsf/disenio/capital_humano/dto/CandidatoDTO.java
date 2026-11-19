@@ -16,4 +16,6 @@ public class CandidatoDTO {
     private String tipoDocumento;
     private String numeroDocumento;
     private String numeroCandidato;
+    /** Solo se completa en la validación 6.A: estado del cuestionario que impide una nueva evaluación. */
+    private String estadoCuestionario;
 }
