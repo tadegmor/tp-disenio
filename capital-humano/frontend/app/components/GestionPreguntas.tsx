@@ -19,8 +19,6 @@ export default function GestionPreguntas() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <AppHeader usuario={USUARIO_ACTUAL} />
-
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
