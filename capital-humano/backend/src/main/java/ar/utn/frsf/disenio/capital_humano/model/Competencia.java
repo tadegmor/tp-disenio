@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.util.List;
 
 @Entity
 @Table(name = "competencias")
@@ -23,4 +24,7 @@ public class Competencia {
 
     @Column(nullable = false)
     private Boolean activa = true;
+
+    @OneToMany(mappedBy = "competencia", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Factor> factores;
 }
