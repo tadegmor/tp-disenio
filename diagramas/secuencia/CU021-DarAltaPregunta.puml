@@ -1,0 +1,240 @@
+@startuml CU021_DarAltaPregunta_Corregido
+
+title Diagrama de Secuencia: CU021 - Dar de Alta una Pregunta (Corregido)
+
+actor "Consultor" as actor
+boundary "PantallaAltaPreguntaUI" as wframe <<boundary>>
+
+control "GestorCompetencia" as gestorC <<gestor>>
+control "GestorFactor" as gestorF <<gestor>>
+control "GestorOpciones" as gestorO <<gestor>>
+control "GestorPregunta" as gestorP <<gestor>>
+
+entity "Pregunta" as pregunta <<entity>>
+
+database "PreguntaDAOSQL" as pregDAO <<DAO>>
+database "OpcionRespuestaDAOSQL" as opcionDAO <<DAO>>
+database "CompetenciaDAOSQL" as competenciaDAO <<DAO>>
+database "FactorDAOSQL" as factorDAO <<DAO>>
+
+loop Primera creación o mientras el actor seleccione "SÍ"
+
+    actor -> wframe : 1. El Actor selecciona el botón Nuevo
+    activate wframe
+
+    ' [Corrección] Se listan todas las competencias y se devuelven DTO a la UI
+    wframe -> gestorC : listarTodas()
+    activate gestorC
+    gestorC -> competenciaDAO : listarTodas()
+    activate competenciaDAO
+
+    competenciaDAO -->> gestorC : List<Competencia>
+    deactivate competenciaDAO
+    gestorC -->> wframe : List<CompetenciaDTO>
+    deactivate gestorC
+
+    ' [Corrección] Se cargan las opciones de respuesta al abrir la pantalla
+    wframe -> gestorO : listarActivas()
+    activate gestorO
+    gestorO -> opcionDAO : listarActivas()
+    activate opcionDAO
+
+    opcionDAO -->> gestorO : List<OpcionRespuesta>
+    deactivate opcionDAO
+    gestorO -->> wframe : List<OpcionRespuestaDTO>
+    deactivate gestorO
+
+    wframe -->> actor : 2. Se muestra la pantalla de alta con las Competencias,\nlas Opciones de Respuesta y los campos de la Pregunta
+
+    actor -> wframe : 3. Selecciona una Competencia
+
+    ' [Corrección] Se buscan los factores de la competencia y se devuelven DTO a la UI
+    wframe -> gestorF : buscarPorCompetencia(competenciaId: Long)
+    activate gestorF
+    gestorF -> factorDAO : buscarPorCompetencia(competenciaId: Long)
+    activate factorDAO
+
+    factorDAO -->> gestorF : List<Factor>
+    deactivate factorDAO
+    gestorF -->> wframe : List<FactorDTO>
+    deactivate gestorF
+
+    wframe -->> actor : 4. Se muestran los Factores correspondientes\na la Competencia seleccionada
+
+    opt 4.A El Actor selecciona Opción de Respuesta
+        actor -> wframe : Selecciona una Opción de Respuesta
+        wframe -->> actor : Se muestra la grilla de Opciones de Respuesta\n(Orden, Descripción y Ponderación)
+
+        note right of wframe
+            Los ítems vienen en el OpcionRespuestaDTO
+            cargado en el paso 1.
+        end note
+    end
+
+    opt 1.A El Actor presiona el botón "Generar con IA"
+
+        actor -> wframe : Presiona el botón "Generar con IA"
+
+        wframe -> gestorP : generarPreguntaConIA(competenciaId: Long,\nfactorId: Long)
+        activate gestorP
+
+        note right of gestorP
+            << incluye "CU033 - Generar con IA" >>
+        end note
+
+        ' [Corrección] Se devuelve un DTO, no la entidad Pregunta
+        gestorP -->> wframe : PreguntaDTO
+        deactivate gestorP
+
+        wframe -->> actor : Se muestran los datos de la Pregunta\ngenerada con IA
+    end
+
+    break El Actor presiona el botón "Cancelar"
+
+        actor -> wframe : Presiona el botón "Cancelar"
+        wframe -->> actor : Se cierra la pantalla de alta
+        deactivate wframe
+        destroy wframe
+    end
+
+    loop Vuelve al paso 5 mientras la Pregunta no se registre correctamente
+
+        actor -> wframe : 5. Ingresa o revisa los datos de la Pregunta\ny presiona el botón "Aceptar"
+
+        wframe -> gestorP : darAlta(dto: PreguntaDTO)
+        activate gestorP
+
+        alt 5.A No se ingresaron todos los datos obligatorios
+
+            gestorP -->> wframe : camposObligatoriosFaltantes
+
+            wframe -->> actor : Se muestra un mensaje detallando todos\nlos campos obligatorios faltantes
+            wframe -->> actor : Se emite una suave alerta auditiva
+
+            note over actor, wframe
+                Los campos permanecen visibles.
+                El flujo vuelve al paso 5.
+            end note
+
+        else 5.B Uno o más campos exceden su longitud máxima
+
+            gestorP -->> wframe : camposConLongitudExcedida
+
+            wframe -->> actor : Se muestra un mensaje detallando todos\nlos campos que exceden su longitud máxima
+            wframe -->> actor : Se emite una suave alerta auditiva
+
+            note over actor, wframe
+                Los campos permanecen visibles.
+                El flujo vuelve al paso 5.
+            end note
+
+        else Las ponderaciones no suman 10\no existe una ponderación negativa
+
+            gestorP -->> wframe : ponderacionesInvalidas
+
+            wframe -->> actor : Se muestra un mensaje indicando que las\nponderaciones deben sumar 10 y no ser negativas
+            wframe -->> actor : Se emite una suave alerta auditiva
+
+            note over actor, wframe
+                El flujo vuelve al paso 5.
+            end note
+
+        else Los datos y las ponderaciones son válidos
+
+            ' [Corrección] El duplicado se valida por nombre y por enunciado
+            gestorP -> pregDAO : existePorNombre(factorId: Long,\nnombre: String)
+            activate pregDAO
+            pregDAO -->> gestorP : boolean
+            deactivate pregDAO
+
+            gestorP -> pregDAO : existePorEnunciado(factorId: Long,\nenunciado: String)
+            activate pregDAO
+            pregDAO -->> gestorP : boolean
+            deactivate pregDAO
+
+            alt 5.C.1 existePorNombre = true
+
+                gestorP -->> wframe : nombreExistente
+
+                wframe -->> actor : Se muestra un mensaje indicando que ya existe una\npregunta con ese nombre para la competencia y factor
+                wframe -->> actor : Se emite una suave alerta auditiva
+
+                note over actor, wframe
+                    El flujo vuelve al paso 5.
+                end note
+
+            else 5.C.2 existePorEnunciado = true
+
+                gestorP -->> wframe : enunciadoExistente
+
+                wframe -->> actor : Se muestra un mensaje indicando que ya existe una\npregunta con ese enunciado para la competencia y factor
+                wframe -->> actor : Se emite una suave alerta auditiva
+
+                note over actor, wframe
+                    El flujo vuelve al paso 5.
+                end note
+
+            else La Pregunta no existe (ambos false)
+
+                ' [Corrección] Se busca la OpcionRespuesta existente (no se crea una nueva)
+                gestorP -> opcionDAO : buscar(id: Long)
+                activate opcionDAO
+                opcionDAO -->> gestorP : OpcionRespuesta
+                deactivate opcionDAO
+
+                note right of gestorP
+                    Se crea la Pregunta a partir de PreguntaDTO
+                    y se asocia a la OpcionRespuesta existente
+                end note
+
+                ' [Corrección] Se guardan las ponderaciones de la relación pregunta-ítem
+                loop Por cada ItemOpcionDTO del PreguntaDTO
+                    gestorP -> pregunta : agregarPonderacion(item: ItemOpcion,\nponderacion: Double)
+                end
+
+                gestorP -> pregDAO : guardar(entidad: Pregunta)
+                activate pregDAO
+
+                note right of pregDAO
+                    Persiste la Pregunta junto con
+                    sus PonderacionOpcion (composición)
+                end note
+
+                pregDAO -->> gestorP : Pregunta
+                deactivate pregDAO
+
+                gestorP -->> wframe : PreguntaDTO
+
+                note over wframe, gestorP
+                    La Pregunta fue registrada correctamente.
+                    Finaliza el loop de validación.
+                end note
+            end
+        end
+
+        deactivate gestorP
+    end
+
+    wframe -->> actor : 6. Se muestra el mensaje "Nombre Pregunta se ha\ncreado correctamente. ¿Desea cargar otra?"
+    wframe -->> actor : 7. Se muestran los botones "SÍ" y "NO"
+
+    actor -> wframe : 8. Selecciona "SÍ" o "NO"
+
+    alt 8.A El Actor selecciona "NO"
+
+        wframe -->> actor : Se cierra la pantalla de alta
+        deactivate wframe
+        destroy wframe
+
+    else 8.B El Actor selecciona "SÍ"
+
+        wframe -->> actor : Se muestra nuevamente la pantalla\nde alta de Pregunta
+
+        note over actor, wframe
+            El flujo vuelve al paso 1.
+            Comienza una nueva iteración.
+        end note
+    end
+end
+
+@enduml
