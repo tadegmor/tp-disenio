@@ -9,7 +9,8 @@ import type {
   ResultadoEvaluacionDTO,
 } from "../types/evaluacion";
 
-const API_BASE = "http://localhost:8080/api";
+// Ruta relativa: Next.js la reenvía al backend con los rewrites de next.config.ts (igual que preguntasApi.ts)
+const API_BASE = "/api";
 const EVALUACIONES_URL = `${API_BASE}/evaluaciones`;
 const PUESTOS_URL = `${API_BASE}/puestos`;
 
