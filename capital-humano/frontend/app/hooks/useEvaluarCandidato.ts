@@ -10,7 +10,10 @@ import {
   prepararEvaluacion,
   verificarCuestionariosActivos,
 } from "../services/evaluacionesApi";
-import { descargarPlanillaEvaluacion } from "../services/exportarPlanilla";
+import {
+  ExportacionCancelada,
+  exportarPlanillaEvaluacion,
+} from "../services/exportarPlanilla";
 import type {
   CandidatoDTO,
   CriteriosBusquedaCandidato,
@@ -41,6 +44,7 @@ export function useEvaluarCandidato() {
   const [preparados, setPreparados] = useState<ResultadoEvaluacionDTO[]>([]);
   const [evaluacionGenerada, setEvaluacionGenerada] = useState<EvaluacionGeneradaDTO | null>(null);
   const [archivoExportado, setArchivoExportado] = useState(false);
+  const [modalExportacionAbierto, setModalExportacionAbierto] = useState(false);
 
   // Avisos modales: 6.A (candidatos con cuestionario activo) y 9.A (competencias no evaluables)
   const [bloqueados, setBloqueados] = useState<CandidatoDTO[]>([]);
@@ -229,11 +233,26 @@ export function useEvaluarCandidato() {
     }
   }, [filtros, limpiarAlertas]);
 
-  const exportarExcel = useCallback(() => {
-    if (!evaluacionGenerada) return;
-    descargarPlanillaEvaluacion(evaluacionGenerada);
+const exportarExcel = useCallback(async () => {
+  if (!evaluacionGenerada) return;
+  limpiarAlertas();
+  setCargando(true);
+  try {
+    const res = await exportarPlanillaEvaluacion(evaluacionGenerada);
     setArchivoExportado(true);
-  }, [evaluacionGenerada]);
+    setModalExportacionAbierto(true);
+  } catch (err: unknown) {
+    if (
+      err instanceof ExportacionCancelada ||
+      (err instanceof Error && err.name === "ExportacionCancelada")
+    ) {
+      return;
+    }
+    mostrarError(err, "No se pudo exportar la planilla.");
+  } finally {
+    setCargando(false);
+  }
+}, [evaluacionGenerada, limpiarAlertas, mostrarError]);
 
   return {
     paso,
@@ -253,6 +272,7 @@ export function useEvaluarCandidato() {
     cargando,
     errorMsg,
     detallesError,
+    modalExportacionAbierto,
     cambiarFiltro,
     buscar,
     alternarCandidato,

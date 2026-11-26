@@ -26,19 +26,21 @@ export default function CandidatosTable({
   return (
     <div>
       <p className="mb-2 text-xs text-slate-500">
-        {candidatos.length} {candidatos.length === 1 ? "resultado" : "resultados"} · marque los
-        candidatos que desea evaluar
+        {candidatos.length} {candidatos.length === 1 ? "resultado" : "resultados"} · Haga clic en
+        una fila para seleccionar o desmarcar candidatos
       </p>
 
       <div className="overflow-hidden rounded-lg border border-slate-200">
         <div className="max-h-80 overflow-auto">
-          <table aria-label="Resultados de la búsqueda de candidatos" className="w-full text-left text-sm">
+          <table
+            aria-label="Resultados de la búsqueda de candidatos"
+            className="w-full text-left text-sm"
+          >
             <thead className="sticky top-0 z-10 bg-slate-100 text-xs uppercase tracking-wide text-slate-600">
               <tr>
-                <th scope="col" className="w-14 px-4 py-3 font-semibold">Sel.</th>
-                <th scope="col" className="px-4 py-3 font-semibold">Apellido</th>
-                <th scope="col" className="px-4 py-3 font-semibold">Nombre</th>
-                <th scope="col" className="px-4 py-3 font-semibold">Número de candidato</th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">Apellido</th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">Nombre</th>
+                <th scope="col" className="px-4 py-3 text-center font-semibold">Número de candidato</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -48,23 +50,14 @@ export default function CandidatosTable({
                   <tr
                     key={c.id}
                     onClick={() => onAlternar(c.id)}
+                    aria-selected={activo}
                     className={`cursor-pointer transition-colors ${
-                      activo ? "bg-blue-50 text-blue-900" : "text-slate-700 hover:bg-slate-50"
+                      activo ? "bg-blue-50 font-medium text-blue-900" : "text-slate-700 hover:bg-slate-50"
                     }`}
                   >
-                    <td className="px-4 py-3">
-                      <input
-                        type="checkbox"
-                        checked={activo}
-                        onChange={() => onAlternar(c.id)}
-                        onClick={(e) => e.stopPropagation()}
-                        aria-label={`Seleccionar ${c.apellido} ${c.nombre}`}
-                        className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
-                      />
-                    </td>
-                    <td className="px-4 py-3 font-medium">{c.apellido}</td>
-                    <td className="px-4 py-3">{c.nombre}</td>
-                    <td className="px-4 py-3">{c.numeroCandidato}</td>
+                    <td className="px-4 py-3 text-left">{c.apellido}</td>
+                    <td className="px-4 py-3 text-left">{c.nombre}</td>
+                    <td className="px-4 py-3 text-center tabular-nums">{c.numeroCandidato}</td>
                   </tr>
                 );
               })}
