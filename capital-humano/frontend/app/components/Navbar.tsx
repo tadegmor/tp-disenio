@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { NAV_ITEMS, USUARIO_ACTUAL } from "@/app/config/navigation";
+import { NAV_ITEMS, RUTAS_CANDIDATO, USUARIO_ACTUAL } from "@/app/config/navigation";
 
 function estaActivo(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/";
@@ -27,6 +27,9 @@ export default function Navbar() {
     .slice(0, 2)
     .join("")
     .toUpperCase();
+
+  // El Candidato usa su propio encabezado (AppHeader), sin el menú del Consultor
+  if (RUTAS_CANDIDATO.some((ruta) => estaActivo(pathname, ruta))) return null;
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">

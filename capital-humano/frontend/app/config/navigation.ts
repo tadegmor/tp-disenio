@@ -26,9 +26,21 @@ export const NAV_ITEMS: NavItem[] = [
         codigo: "CU025",
         description: "Evaluar candidatos en un puesto: genera los cuestionarios y las claves de ingreso.",
     },
+    {
+        href: "/cuestionario",
+        label: "Completar Cuestionario",
+        codigo: "CU026",
+        description: "El candidato responde, por bloques, el cuestionario que le fue asignado.",
+    },
 ];
 
 //Provisiorio hasta integrar la autenticación (CU001)
 export const USUARIO_ACTUAL = "Pedro Martínez";
+
+//Pantallas del perfil Candidato: no muestran el menú del Consultor
+export const RUTAS_CANDIDATO = ["/cuestionario"];
+
+//Provisorio hasta integrar la autenticación del candidato (CU001 3.A): cuestionario asociado a su clave
+export const CUESTIONARIO_CANDIDATO_ID = 1;
 
 

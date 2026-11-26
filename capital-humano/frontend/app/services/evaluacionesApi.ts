@@ -29,7 +29,7 @@ export class ApiError extends Error {
 }
 
 /** El backend responde errores como ProblemDetail (campo "detail" y opcionalmente "detalles"). */
-async function leerError(res: Response): Promise<ApiError> {
+export async function leerError(res: Response): Promise<ApiError> {
   let detalle = "Ocurrió un error inesperado. Intente nuevamente.";
   let detalles: string[] = [];
   try {
