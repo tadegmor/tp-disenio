@@ -10,7 +10,7 @@ import ResultsTable from "./ResultsTable";
 import SearchFilters from "./SearchFilters";
 
 // TODO: reemplazar por el usuario autenticado (CU001)
-const USUARIO_ACTUAL = "Pedro Martinez";
+//const USUARIO_ACTUAL = "Pedro Martinez";
 
 export default function GestionPreguntas() {
   const router = useRouter();
