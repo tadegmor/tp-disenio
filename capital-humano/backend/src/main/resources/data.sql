@@ -19,8 +19,22 @@ INSERT INTO factores (nombre, descripcion, competencia_id) SELECT 'Delegacion', 
 INSERT INTO factores (nombre, descripcion, competencia_id) SELECT 'Persuasion', 'Convencer con argumentos', id FROM competencias WHERE nombre = 'Negociación';
 
 -- ---------- Opciones de respuesta reutilizables ----------
-INSERT INTO opciones_respuesta (nombre) VALUES ('Escala Likert 1 a 5');
-INSERT INTO opciones_respuesta (nombre) VALUES ('Si / No');
+INSERT INTO opciones_respuesta (nombre, descripcion, activa) VALUES ('Escala Likert 1 a 5', 'Escala de frecuencia de 5 niveles', true);
+INSERT INTO opciones_respuesta (nombre, descripcion, activa) VALUES ('Si / No', 'Respuesta dicotómica', true);
+INSERT INTO opciones_respuesta (nombre, descripcion, activa) VALUES ('Verdadero / Falso', 'Respuesta booleana', true);
+
+-- ---------- Items de opciones de respuesta ----------
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 1, 'NUNCA', id FROM opciones_respuesta WHERE nombre = 'Escala Likert 1 a 5';
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 2, 'RARA VEZ', id FROM opciones_respuesta WHERE nombre = 'Escala Likert 1 a 5';
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 3, 'A VECES', id FROM opciones_respuesta WHERE nombre = 'Escala Likert 1 a 5';
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 4, 'FRECUENTEMENTE', id FROM opciones_respuesta WHERE nombre = 'Escala Likert 1 a 5';
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 5, 'SIEMPRE', id FROM opciones_respuesta WHERE nombre = 'Escala Likert 1 a 5';
+
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 1, 'SI', id FROM opciones_respuesta WHERE nombre = 'Si / No';
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 2, 'NO', id FROM opciones_respuesta WHERE nombre = 'Si / No';
+
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 1, 'VERDADERO', id FROM opciones_respuesta WHERE nombre = 'Verdadero / Falso';
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 2, 'FALSO', id FROM opciones_respuesta WHERE nombre = 'Verdadero / Falso';
 
 -- ---------- Preguntas ----------
 -- Evaluables (factor con 2 o mas preguntas): Compromiso Institucional (2), Comunicacion Asertiva (2), Analisis de Riesgos (3)

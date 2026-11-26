@@ -30,7 +30,7 @@ export default function ProximamenteCU({
         href={volverHref}
         className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
       >
-        Volver a Gestión de Preguntas
+        Volver
       </Link>
     </main>
   );
