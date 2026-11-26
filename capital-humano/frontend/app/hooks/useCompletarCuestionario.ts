@@ -22,7 +22,7 @@ export function useCompletarCuestionario(cuestionarioId: number) {
   const [instrucciones, setInstrucciones] = useState("");
   const [bloque, setBloque] = useState<BloqueCuestionarioDTO | null>(null);
 
-  // preguntaId -> opcionRespuestaId del bloque que se está respondiendo
+  // preguntaId -> itemOpcionId del bloque que se está respondiendo
   const [respuestas, setRespuestas] = useState<Record<number, number>>({});
   // 6.A: preguntas del bloque que quedaron sin responder
   const [sinResponder, setSinResponder] = useState<number[]>([]);
@@ -146,7 +146,7 @@ export function useCompletarCuestionario(cuestionarioId: number) {
       await completarCuestionario(cuestionarioId, bloque.bloqueId, {
         respuestas: bloque.preguntas.map((p) => ({
           preguntaId: p.preguntaId,
-          opcionRespuestaId: respuestas[p.preguntaId],
+          itemOpcionId: respuestas[p.preguntaId],
         })),
       });
 

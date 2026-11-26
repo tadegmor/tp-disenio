@@ -57,6 +57,27 @@ INSERT INTO pregunta (nombre, enunciado, descripcion, tipo, id_factor, id_opcion
 SELECT 'P-010', '¿Reconoce el trabajo bien hecho de su equipo?', 'Pregunta eliminada', 'ESCALA', f.id, o.id, true
 FROM factores f, opciones_respuesta o WHERE f.nombre = 'Delegacion' AND o.nombre = 'Escala Likert 1 a 5';
 
+-- ---------- Items de las opciones de respuesta y ponderaciones por pregunta (CU026) ----------
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 1, 'NUNCA', id FROM opciones_respuesta WHERE nombre = 'Escala Likert 1 a 5';
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 2, 'CASI NUNCA', id FROM opciones_respuesta WHERE nombre = 'Escala Likert 1 a 5';
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 3, 'A VECES', id FROM opciones_respuesta WHERE nombre = 'Escala Likert 1 a 5';
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 4, 'CASI SIEMPRE', id FROM opciones_respuesta WHERE nombre = 'Escala Likert 1 a 5';
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 5, 'SIEMPRE', id FROM opciones_respuesta WHERE nombre = 'Escala Likert 1 a 5';
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 1, 'SI', id FROM opciones_respuesta WHERE nombre = 'Si / No';
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 2, 'NO', id FROM opciones_respuesta WHERE nombre = 'Si / No';
+
+-- Las ponderaciones de cada pregunta suman 10: Likert 0+1+2+3+4, Si/No 10+0
+INSERT INTO ponderaciones_opcion (pregunta_id, item_opcion_id, ponderacion)
+SELECT p.id_pregunta, i.id, i.orden - 1
+FROM pregunta p JOIN items_opcion i ON i.opcion_respuesta_id = p.id_opcion_respuesta
+  JOIN opciones_respuesta o ON o.id = p.id_opcion_respuesta
+WHERE o.nombre = 'Escala Likert 1 a 5';
+INSERT INTO ponderaciones_opcion (pregunta_id, item_opcion_id, ponderacion)
+SELECT p.id_pregunta, i.id, CASE WHEN i.orden = 1 THEN 10 ELSE 0 END
+FROM pregunta p JOIN items_opcion i ON i.opcion_respuesta_id = p.id_opcion_respuesta
+  JOIN opciones_respuesta o ON o.id = p.id_opcion_respuesta
+WHERE o.nombre = 'Si / No';
+
 -- ---------- Puestos ----------
 INSERT INTO puestos (codigo, nombre, empresa, eliminado) VALUES ('P001', 'Desarrollador Java Senior', 'Tech Solutions', false);
 INSERT INTO puestos (codigo, nombre, empresa, eliminado) VALUES ('P002', 'Analista Funcional', 'Tech Solutions', false);

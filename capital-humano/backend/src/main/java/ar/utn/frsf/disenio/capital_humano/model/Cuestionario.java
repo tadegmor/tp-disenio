@@ -2,6 +2,7 @@ package ar.utn.frsf.disenio.capital_humano.model;
 
 import ar.utn.frsf.disenio.capital_humano.model.estado.EstadoCuestionarioFactory;
 import ar.utn.frsf.disenio.capital_humano.model.estado.EstadoCuestionarioState;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,8 +13,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -81,6 +87,31 @@ public class Cuestionario {
     /** Minutos que tiene el candidato para completar el cuestionario desde que lo inicia. */
     @Column(name = "tiempo_maximo_completar", nullable = false)
     private Integer tiempoMaximoCompletar;
+
+    /** CU026 paso 3: se generan una sola vez y se guardan para presentarlos idénticos al volver. */
+    @OneToMany(mappedBy = "cuestionario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("numero")
+    @Setter(AccessLevel.NONE)
+    private List<BloqueCuestionario> bloques = new ArrayList<>();
+
+    @OneToMany(mappedBy = "cuestionario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Setter(AccessLevel.NONE)
+    private List<Resultado> resultados = new ArrayList<>();
+
+    public void agregarBloque(BloqueCuestionario bloque) {
+        bloque.setCuestionario(this);
+        bloques.add(bloque);
+    }
+
+    /** CU026 1.C y 8.A: el primer bloque que todavía no fue respondido. */
+    public Optional<BloqueCuestionario> bloquePendiente() {
+        return bloques.stream().filter(b -> !b.isCompletado()).findFirst();
+    }
+
+    public void agregarResultado(Resultado resultado) {
+        resultado.setCuestionario(this);
+        resultados.add(resultado);
+    }
 
     // ---------------- Ciclo de vida (delegado en el patrón State) ----------------
 
