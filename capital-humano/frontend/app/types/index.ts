@@ -31,3 +31,22 @@ export interface Mensaje {
   tipo: TipoMensaje;
   texto: string;
 }
+
+export type RolUsuario = "CONSULTOR" | "CANDIDATO";
+
+export interface SesionMiniLogin {
+  rol: RolUsuario;
+  nombre: string;
+  candidatoId?: string;
+}
+
+export type EstadoCuestionario = "PENDIENTE" | "COMPLETADO";
+
+export interface CuestionarioPendiente {
+  id: string;
+  candidatoId: string;
+  titulo: string;
+  puesto: string;
+  estado: EstadoCuestionario;
+  fechaAsignacion: string;
+}
