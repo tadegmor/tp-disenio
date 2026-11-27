@@ -24,10 +24,10 @@ public class CuestionarioController {
 
     private final CuestionarioService cuestionarioService;
 
-    /** Listado "Cuestionarios pendientes" del candidato que ingresó con el login (desde donde se inicia el CU026). */
-    @GetMapping(params = "candidatoId")
-    public ResponseEntity<List<CuestionarioDTO>> listarPorCandidato(@RequestParam Long candidatoId) {
-        return ResponseEntity.ok(cuestionarioService.listarPorCandidato(candidatoId));
+    /** Listado "Cuestionarios pendientes" del candidato que ingresó con su número de candidato (inicio del CU026). */
+    @GetMapping(params = "numeroCandidato")
+    public ResponseEntity<List<CuestionarioDTO>> listarPorNumeroCandidato(@RequestParam String numeroCandidato) {
+        return ResponseEntity.ok(cuestionarioService.listarPorNumeroCandidato(numeroCandidato));
     }
 
     /** Paso 1: estado del cuestionario ya verificado (1.A / 1.B). 404 si no existe. */

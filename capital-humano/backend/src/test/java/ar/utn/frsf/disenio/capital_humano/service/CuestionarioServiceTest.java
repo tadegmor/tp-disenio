@@ -112,12 +112,13 @@ class CuestionarioServiceTest {
     @Test
     void elListadoDelCandidatoTraeSusCuestionarios() {
         Cuestionario cuestionario = porClave(CLAVE_ACTIVO);
-        assertThat(cuestionarioService.listarPorCandidato(cuestionario.getCandidato().getId()))
+        assertThat(cuestionarioService.listarPorNumeroCandidato("010"))
                 .singleElement()
                 .satisfies(dto -> {
                     assertThat(dto.getCuestionarioId()).isEqualTo(cuestionario.getId());
                     assertThat(dto.getEstado()).isEqualTo(EstadoCuestionario.ACTIVO);
                 });
+        assertThat(cuestionarioService.listarPorNumeroCandidato("999")).isEmpty();
     }
 
     private Cuestionario porClave(String clave) {

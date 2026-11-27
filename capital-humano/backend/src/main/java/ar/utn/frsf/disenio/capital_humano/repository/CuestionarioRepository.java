@@ -25,4 +25,13 @@ public interface CuestionarioRepository extends JpaRepository<Cuestionario, Long
           AND cand.eliminado = false
         """)
     List<Cuestionario> buscarPorEvaluaciones(@Param("evaluacionIds") Collection<Long> evaluacionIds);
+
+    // ---- CU026 (listado del login del candidato) ----
+    @Query("""
+        SELECT c FROM Cuestionario c
+          JOIN FETCH c.candidato cand
+        WHERE cand.numeroCandidato = :numeroCandidato
+          AND cand.eliminado = false
+        """)
+    List<Cuestionario> buscarPorNumeroCandidato(@Param("numeroCandidato") String numeroCandidato);
 }

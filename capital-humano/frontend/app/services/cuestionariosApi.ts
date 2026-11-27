@@ -9,11 +9,11 @@ import { leerError } from "./evaluacionesApi";
 const CUESTIONARIOS_URL = "/api/cuestionario";
 
 
-/** Lista los cuestionarios asociados a un candidato desde el backend. */
+/** Lista los cuestionarios del candidato que ingresó con su número de candidato. */
 export async function listarCuestionariosPorCandidato(
-  candidatoId: number,
+  numeroCandidato: string,
 ): Promise<CuestionarioDTO[]> {
-  const res = await fetch(`${CUESTIONARIOS_URL}?candidatoId=${encodeURIComponent(candidatoId)}`, {
+  const res = await fetch(`${CUESTIONARIOS_URL}?numeroCandidato=${encodeURIComponent(numeroCandidato)}`, {
     cache: "no-store",
   });
   if (!res.ok) throw await leerError(res);

@@ -18,6 +18,7 @@ import ar.utn.frsf.disenio.capital_humano.model.Resultado;
 import ar.utn.frsf.disenio.capital_humano.repository.CuestionarioRepository;
 import ar.utn.frsf.disenio.capital_humano.repository.PreguntaRepository;
 import ar.utn.frsf.disenio.capital_humano.repository.PuestoCompetenciaRepository;
+import ar.utn.frsf.disenio.capital_humano.util.TextoUtil;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,8 +47,8 @@ public class CuestionarioService {
      * Cuestionarios del candidato para el listado del login. No se vencen acá: el aviso de 1.A / 1.B
      * lo tiene que ver el candidato al ingresar (paso 1).
      */
-    public List<CuestionarioDTO> listarPorCandidato(Long candidatoId) {
-        return cuestionarioRepository.buscarPorCandidatos(List.of(candidatoId)).stream()
+    public List<CuestionarioDTO> listarPorNumeroCandidato(String numeroCandidato) {
+        return cuestionarioRepository.buscarPorNumeroCandidato(TextoUtil.normalizar(numeroCandidato)).stream()
                 .map(cuestionarioMapper::mapToDTO)
                 .toList();
     }
