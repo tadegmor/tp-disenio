@@ -37,9 +37,13 @@ const AVISOS: Record<AvisoCU026, { titulo: string; mensaje: ReactNode; estado: s
 
 interface CompletarCuestionarioProps {
   cuestionarioId: number;
+  ocultarHeader?: boolean;
 }
 
-export default function CompletarCuestionario({ cuestionarioId }: CompletarCuestionarioProps) {
+export default function CompletarCuestionario({
+  cuestionarioId,
+  ocultarHeader = false,
+}: CompletarCuestionarioProps) {
   const router = useRouter();
   const cu = useCompletarCuestionario(cuestionarioId);
   const alertaRef = useRef<HTMLDivElement>(null);
