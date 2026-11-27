@@ -11,7 +11,11 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler({CriterioBusquedaInvalidoException.class, SolicitudInvalidaException.class})
     public ProblemDetail solicitudInvalida(RuntimeException ex) {
-        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        ProblemDetail problema = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        if (ex instanceof SolicitudInvalidaException sie && !sie.getDetalles().isEmpty()) {
+            problema.setProperty("detalles", sie.getDetalles());
+        }
+        return problema;
     }
 
     @ExceptionHandler({PreguntaNoEncontradaException.class, RecursoNoEncontradoException.class})

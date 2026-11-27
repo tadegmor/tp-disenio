@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "opciones_respuesta")
 @Getter
@@ -19,6 +22,26 @@ public class OpcionRespuesta {
     @Column(nullable = false)
     private String nombre;
 
-    private Integer ponderacion;
+    private String descripcion;
 
+    @Column(nullable = false)
+    private Boolean activa = true;
+
+    @OneToMany(
+        mappedBy = "opcionRespuesta",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
+    @OrderBy("orden ASC")
+    private List<ItemOpcion> items = new ArrayList<>();
+
+    public void agregarItem(ItemOpcion item) {
+        items.add(item);
+        item.setOpcionRespuesta(this);
+    }
+
+    public void quitarItem(ItemOpcion item) {
+        items.remove(item);
+        item.setOpcionRespuesta(null);
+    }
 }

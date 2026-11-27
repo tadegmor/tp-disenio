@@ -9,6 +9,7 @@ import Button from "./Button";
 import CandidatosFilters from "./CandidatosFilters";
 import CandidatosTable from "./CandidatosTable";
 import Feedback from "./Feedback";
+import ExportacionExitosaDialog from "./ExportacionExitosaDialog";
 
 const MSG_SIN_CANDIDATOS = "(*) Debe seleccionar uno o más candidatos";
 const MSG_SIN_PUESTO = "(*) Debe seleccionar un puesto";
@@ -16,6 +17,10 @@ const MSG_SIN_PUESTO = "(*) Debe seleccionar un puesto";
 // Mismo estilo de encabezado que ResultsTable (CU020)
 const ENCABEZADO = "sticky top-0 z-10 bg-slate-100 text-left text-xs uppercase tracking-wide text-slate-600";
 const TH = "px-4 py-3 font-semibold";
+
+const ubicacionExportacion =
+  process.env.NEXT_PUBLIC_RUTA_EXPORTACION ||
+  "Escritorio / Documentos / Evaluaciones / 2026 /";
 
 const nombreCompleto = (c: CandidatoDTO) => `${c.apellido} ${c.nombre}`.toUpperCase();
 
@@ -212,29 +217,28 @@ export default function EvaluarCandidato() {
                 </div>
 
                 <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                  <p className="font-medium text-slate-800">
-                    ¿Desea exportar la lista de candidatos con sus claves a un archivo Excel?
-                  </p>
-                  <p className="mt-1 text-xs text-slate-500">
-                    Nombre de archivo:{" "}
-                    <span className="font-mono">{ev.evaluacionGenerada.nombreArchivo}</span>
-                  </p>
-                  {ev.archivoExportado && (
-                    <p className="mt-2 text-xs font-medium text-emerald-700">
-                      Planilla exportada ({ev.evaluacionGenerada.nombreArchivo}).
-                    </p>
-                  )}
-                  <div className="mt-3 flex flex-wrap gap-3">
-                    <Button onClick={ev.exportarExcel}>Sí</Button>
-                    <Button variant="secondary" onClick={() => router.push("/")}>
-                      No
-                    </Button>
-                    {/* Atajo extra al wireframe: arrancar otra evaluación sin salir del CU */}
-                    <Button variant="secondary" onClick={ev.reiniciarFlujo}>
-                      Nueva evaluación
-                    </Button>
-                  </div>
+                <p className="font-medium text-slate-800">
+                  ¿Desea exportar la lista de candidatos con sus claves a un archivo Excel?
+                </p>
+                <p className="mt-1 text-xs text-slate-500">
+                  Nombre de archivo:{" "}
+                  <span className="font-mono">{ev.evaluacionGenerada.nombreArchivo}</span>
+                </p>
+
+                <div className="mt-3 flex flex-wrap gap-3">
+                  <Button onClick={ev.exportarExcel}>Sí</Button>
+                  <Button variant="secondary" onClick={() => router.push("/")}>
+                    No
+                  </Button>
                 </div>
+              </div>
+                {ev.evaluacionGenerada && (
+                  <ExportacionExitosaDialog
+                    abierto={ev.modalExportacionAbierto}
+                    nombreArchivo={ev.evaluacionGenerada.nombreArchivo}
+                    onAceptar={() => router.push("/")}
+                  />
+                )}
               </div>
             )}
           </div>

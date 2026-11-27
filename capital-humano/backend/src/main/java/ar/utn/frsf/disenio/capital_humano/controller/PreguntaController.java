@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
@@ -44,5 +47,11 @@ public class PreguntaController {
         preguntaService.darBaja(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping
+    public ResponseEntity<PreguntaDTO> darAltaPregunta(@RequestBody PreguntaDTO dto) {
+    PreguntaDTO creada = preguntaService.darAlta(dto);
+    return ResponseEntity.status(HttpStatus.CREATED).body(creada);
+}
 }
 

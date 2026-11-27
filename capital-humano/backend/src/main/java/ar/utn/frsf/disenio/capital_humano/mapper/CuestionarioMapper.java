@@ -2,7 +2,7 @@ package ar.utn.frsf.disenio.capital_humano.mapper;
 
 import ar.utn.frsf.disenio.capital_humano.dto.BloqueCuestionarioDTO;
 import ar.utn.frsf.disenio.capital_humano.dto.CuestionarioDTO;
-import ar.utn.frsf.disenio.capital_humano.dto.ItemOpcionDTO;
+import ar.utn.frsf.disenio.capital_humano.dto.OpcionCuestionarioDTO;
 import ar.utn.frsf.disenio.capital_humano.dto.PreguntaCuestionarioDTO;
 import ar.utn.frsf.disenio.capital_humano.model.BloqueCuestionario;
 import ar.utn.frsf.disenio.capital_humano.model.Candidato;
@@ -43,7 +43,7 @@ public class CuestionarioMapper {
                 .opciones(pregunta.getPonderaciones().stream()
                         .map(PonderacionOpcion::getItemOpcion)
                         .sorted(Comparator.comparing(ItemOpcion::getOrden))
-                        .map(item -> new ItemOpcionDTO(item.getId(), item.getDescripcion()))
+                        .map(item -> new OpcionCuestionarioDTO(item.getId(), item.getDescripcion()))
                         .toList())
                 .build();
     }

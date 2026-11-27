@@ -26,6 +26,25 @@ public interface PreguntaRepository extends JpaRepository<Pregunta, Long> {
                                              @Param("factor") String factor,
                                              @Param("nombre") String nombre);
 
+    // ---- CU021 (5.C.1 y 5.C.2) ----
+    @Query("""
+            SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END
+            FROM Pregunta p
+            WHERE p.factor.id = :factorId
+              AND UPPER(TRIM(p.nombre)) = UPPER(TRIM(:nombre))
+            """)
+    boolean existePorNombre(@Param("factorId") Long factorId,
+                            @Param("nombre") String nombre);
+
+    @Query("""
+            SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END
+            FROM Pregunta p
+            WHERE p.factor.id = :factorId
+              AND UPPER(TRIM(p.enunciado)) = UPPER(TRIM(:enunciado))
+            """)
+    boolean existePorEnunciado(@Param("factorId") Long factorId,
+                               @Param("enunciado") String enunciado);
+
     // ---- CU025 (9.A) ----
     /**
      * Ids de las competencias (entre las indicadas) que tienen al menos un factor con

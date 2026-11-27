@@ -1,5 +1,29 @@
 import type { EvaluacionGeneradaDTO } from "../types/evaluacion";
 
+export interface ResultadoExportacion {
+  /** Nombre del archivo exportado según el CU025. */
+  nombreArchivo: string;
+}
+
+/** El consultor cerró el cuadro "Guardar como" sin guardar (CU025 16.A: vuelve a la pregunta de exportación). */
+export class ExportacionCancelada extends Error {
+  constructor() {
+    super("Exportación cancelada por el usuario");
+    this.name = "ExportacionCancelada";
+  }
+}
+
+// File System Access API (Chrome, Edge, Opera). No está en lib.dom, se tipa lo mínimo que se usa.
+interface ManejadorArchivo {
+  name: string;
+  createWritable(): Promise<{ write(data: Blob): Promise<void>; close(): Promise<void> }>;
+}
+type SelectorGuardado = (opciones: {
+  suggestedName: string;
+  startIn?: string;
+  types?: { description: string; accept: Record<string, string[]> }[];
+}) => Promise<ManejadorArchivo>;
+
 function escaparHtml(valor: string | number | null | undefined): string {
   return String(valor ?? "")
     .replaceAll("&", "&amp;")
@@ -8,8 +32,7 @@ function escaparHtml(valor: string | number | null | undefined): string {
     .replaceAll('"', "&quot;");
 }
 
-/** CU025 pasos 14-17: planilla con los candidatos y sus claves (tabla HTML que Excel abre como .xls). */
-export function descargarPlanillaEvaluacion(evaluacion: EvaluacionGeneradaDTO) {
+function construirPlanilla(evaluacion: EvaluacionGeneradaDTO): Blob {
   const filas = evaluacion.candidatos
     .map(
       (c) => `
@@ -47,15 +70,54 @@ export function descargarPlanillaEvaluacion(evaluacion: EvaluacionGeneradaDTO) {
     </html>
   `.trim();
 
-  const blob = new Blob(["\ufeff", contenidoXls], {
+  return new Blob(["\ufeff", contenidoXls], {
     type: "application/vnd.ms-excel;charset=utf-8;",
   });
+}
+
+function descargarConEnlace(blob: Blob, nombreArchivo: string) {
   const url = URL.createObjectURL(blob);
   const enlace = document.createElement("a");
   enlace.href = url;
-  enlace.download = evaluacion.nombreArchivo;
+  enlace.download = nombreArchivo;
   document.body.appendChild(enlace);
   enlace.click();
   enlace.remove();
   URL.revokeObjectURL(url);
+}
+
+/**
+ * CU025 pasos 15-17. Con "Guardar como" (Chrome/Edge) el consultor elige dónde guardar el archivo.
+ * En otros navegadores se descarga con enlace directo.
+ * Debe llamarse directamente desde un click: el selector exige un gesto del usuario.
+ */
+export async function exportarPlanillaEvaluacion(
+  evaluacion: EvaluacionGeneradaDTO,
+): Promise<ResultadoExportacion> {
+  const blob = construirPlanilla(evaluacion);
+  const selector = (window as unknown as { showSaveFilePicker?: SelectorGuardado }).showSaveFilePicker;
+  if (!selector) {
+    descargarConEnlace(blob, evaluacion.nombreArchivo);
+    return { nombreArchivo: evaluacion.nombreArchivo };
+  }
+
+  try {
+    const archivo = await selector.call(window, {
+      suggestedName: evaluacion.nombreArchivo,
+      startIn: "documents",
+      types: [{ description: "Microsoft Excel (*.xls)", accept: { "application/vnd.ms-excel": [".xls"] } }],
+    });
+    const escritura = await archivo.createWritable();
+    await escritura.write(blob);
+    await escritura.close();
+
+    return { nombreArchivo: evaluacion.nombreArchivo };
+  } catch (err: unknown) {
+    const nombreError =
+      err instanceof Error ? err.name : (err as { name?: string } | null)?.name;
+    if (nombreError === "AbortError") {
+      throw new ExportacionCancelada();
+    }
+    throw err;
+  }
 }

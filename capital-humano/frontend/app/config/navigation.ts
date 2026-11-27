@@ -1,46 +1,48 @@
-export interface NavItem{
-    href: string;
-    label: string;
-    codigo?: string;
-    description?: string;
+import type { RolUsuario } from "@/app/types";
+
+export interface NavItem {
+  href: string;
+  label: string;
+  codigo?: string;
+  description?: string;
+  roles?: RolUsuario[];
 }
 
-//Para sumar un caso de uso al menú alcanza con agregar un objeto a este arreglo:
-//el Navbar y las tarjetas de Inicio se generan a partir de él.
+// Para sumar un caso de uso al menú alcanza con agregar un objeto a este arreglo:
+// el Navbar y las tarjetas de Inicio se generan a partir de él.
 
 export const NAV_ITEMS: NavItem[] = [
-    {
-        href: "/",
-        label: "Inicio",
-        description: "Menú Principal del Sistema de C@pital Humano.",
-    },
-    {
-        href: "/preguntas",
-        label: "Gestionar Preguntas",
-        codigo: "CU020",
-        description: "Buscar, crear, modificar o eliminar preguntas del sistema.",
-    },
-    {
-        href: "/evaluaciones/nuevo",
-        label: "Evaluar Candidatos",
-        codigo: "CU025",
-        description: "Evaluar candidatos en un puesto: genera los cuestionarios y las claves de ingreso.",
-    },
-    {
-        href: "/cuestionario",
-        label: "Completar Cuestionario",
-        codigo: "CU026",
-        description: "El candidato responde, por bloques, el cuestionario que le fue asignado.",
-    },
+  {
+    href: "/",
+    label: "Inicio",
+    description: "Menú Principal del Sistema de C@pital Humano.",
+    roles: ["CONSULTOR"],
+  },
+  {
+    href: "/preguntas",
+    label: "Gestionar Preguntas",
+    codigo: "CU020",
+    description: "Buscar, crear, modificar o eliminar preguntas del sistema.",
+    roles: ["CONSULTOR"],
+  },
+  {
+    href: "/evaluaciones/nuevo",
+    label: "Evaluar Candidatos",
+    codigo: "CU025",
+    description:
+      "Evaluar candidatos en un puesto: genera los cuestionarios y las claves de ingreso.",
+    roles: ["CONSULTOR"],
+  },
+  {
+    href: "/cuestionarios",
+    label: "Mis Cuestionarios",
+    description: "Ver y completar cuestionarios pendientes del candidato.",
+    roles: ["CANDIDATO"],
+  },
 ];
 
-//Provisiorio hasta integrar la autenticación (CU001)
-export const USUARIO_ACTUAL = "Pedro Martínez";
-
-//Pantallas del perfil Candidato: no muestran el menú del Consultor
-export const RUTAS_CANDIDATO = ["/cuestionario"];
-
-//Provisorio hasta integrar la autenticación del candidato (CU001 3.A): cuestionario asociado a su clave
+// Valor por defecto del consultor para el mini login
+export const CONSULTOR_POR_DEFECTO = "Pedro Martínez";
+// Provisorio: el menú de cuestionarios del candidato todavía usa datos de demostración,
+// así que "Completar cuestionario" abre este cuestionario de data.sql (CU026)
 export const CUESTIONARIO_CANDIDATO_ID = 1;
-
-

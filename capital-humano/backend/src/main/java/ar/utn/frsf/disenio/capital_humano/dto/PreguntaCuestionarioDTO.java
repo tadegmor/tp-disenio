@@ -13,5 +13,5 @@ import lombok.NoArgsConstructor;
 public class PreguntaCuestionarioDTO {
     private Long preguntaId;
     private String enunciado;
-    private List<ItemOpcionDTO> opciones;
+    private List<OpcionCuestionarioDTO> opciones;
 }

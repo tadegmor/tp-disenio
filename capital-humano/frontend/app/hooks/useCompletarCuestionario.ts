@@ -178,7 +178,6 @@ export function useCompletarCuestionario(cuestionarioId: number) {
     aceptarInstrucciones,
     responder,
     avanzar,
-    volverAlCuestionario: () => void cargarCuestionario(),
     limpiarAlertas,
   };
 }

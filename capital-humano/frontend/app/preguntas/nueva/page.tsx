@@ -1,12 +1,15 @@
-import ProximamenteCU from "@/app/components/ProximamenteCU";
+import RoleGuard from "@/app/components/RoleGuard";
+import type { Metadata } from "next";
+import AltaPregunta from "@/app/components/AltaPregunta";
 
-// Provisorio hasta implementar el CU021 (Dar de alta pregunta)
+export const metadata: Metadata = {
+  title: "Alta de Pregunta | Capital Humano",
+};
+
 export default function NuevaPreguntaPage() {
   return (
-    <ProximamenteCU
-      codigo="CU021"
-      titulo="Dar de alta pregunta"
-      volverHref="/preguntas"
-    />
+    <RoleGuard allowedRoles={["CONSULTOR"]}>
+    <AltaPregunta/>
+    </RoleGuard>
   );
 }

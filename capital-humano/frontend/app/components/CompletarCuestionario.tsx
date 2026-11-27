@@ -2,14 +2,15 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "../context/SessionContext";
 import { type AvisoCU026, useCompletarCuestionario } from "../hooks/useCompletarCuestionario";
-import AppHeader from "./AppHeader";
 import Button from "./Button";
 import EstadoCuestionarioDialog from "./EstadoCuestionarioDialog";
 import Feedback from "./Feedback";
 import PreguntasBloque from "./PreguntasBloque";
 
-// Textos de los wireframes 026.1A, 026.1B y 026.8; los colores del estado siguen la paleta de Feedback
+// Textos de los wireframes 026.1A, 026.1B y 026.8; los colores del estado siguen la paleta de Feedback.
+// En 1.A, 1.B y 8 el CU finaliza: un único Aceptar vuelve al menú de cuestionarios del candidato.
 const AVISOS: Record<AvisoCU026, { titulo: string; mensaje: ReactNode; estado: string; claseEstado: string }> = {
   INCOMPLETO: {
     titulo: "Su cuestionario ha finalizado por exceder el tiempo límite",
@@ -23,7 +24,7 @@ const AVISOS: Record<AvisoCU026, { titulo: string; mensaje: ReactNode; estado: s
   },
   SIN_CONTESTAR: {
     titulo: "Su cuestionario ha expirado por inactividad",
-    mensaje: "Se ha alcanzado el tiempo máximo permitido. El progreso se ha guardado automáticamente.",
+    mensaje: "Se ha superado el tiempo máximo permitido para comenzar el cuestionario.",
     estado: "Sin contestar",
     claseEstado: "text-amber-700",
   },
@@ -41,6 +42,7 @@ interface CompletarCuestionarioProps {
 
 export default function CompletarCuestionario({ cuestionarioId }: CompletarCuestionarioProps) {
   const router = useRouter();
+  const { sesion } = useSession();
   const cu = useCompletarCuestionario(cuestionarioId);
   const alertaRef = useRef<HTMLDivElement>(null);
 
@@ -57,16 +59,17 @@ export default function CompletarCuestionario({ cuestionarioId }: CompletarCuest
     }
   }, [cu.preguntaAEnfocar]);
 
-  const candidato = cu.cuestionario
-    ? `${cu.cuestionario.nombreCandidato} ${cu.cuestionario.apellidoCandidato}`
-    : "—";
   const aviso = cu.aviso ? AVISOS[cu.aviso] : null;
-  const salir = () => router.push("/");
+  // Menú "Cuestionarios pendientes" del candidato (login de CU001)
+  const salir = () =>
+    router.push(
+      sesion?.candidatoId
+        ? `/cuestionarios?candidatoId=${encodeURIComponent(sesion.candidatoId)}`
+        : "/cuestionarios",
+    );
 
   return (
     <div className="flex-1 bg-slate-50">
-      <AppHeader usuario={candidato} rol="Candidato" />
-
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Cuestionario</h1>
@@ -170,16 +173,7 @@ export default function CompletarCuestionario({ cuestionarioId }: CompletarCuest
           estado={aviso.estado}
           claseEstado={aviso.claseEstado}
         >
-          {cu.aviso === "SIN_CONTESTAR" ? (
-            <>
-              <Button onClick={cu.volverAlCuestionario}>Volver al cuestionario</Button>
-              <Button variant="secondary" onClick={salir}>
-                Salir
-              </Button>
-            </>
-          ) : (
-            <Button onClick={salir}>Aceptar</Button>
-          )}
+          <Button onClick={salir}>Aceptar</Button>
         </EstadoCuestionarioDialog>
       )}
     </div>

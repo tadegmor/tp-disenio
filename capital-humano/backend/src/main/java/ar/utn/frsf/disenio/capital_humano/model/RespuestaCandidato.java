@@ -48,7 +48,7 @@ public class RespuestaCandidato {
         return opcionElegida.getPregunta().getFactor();
     }
 
-    public int getPonderacion() {
+    public double getPonderacion() {
         return opcionElegida.getPonderacion();
     }
 }

@@ -19,8 +19,22 @@ INSERT INTO factores (nombre, descripcion, competencia_id) SELECT 'Delegacion', 
 INSERT INTO factores (nombre, descripcion, competencia_id) SELECT 'Persuasion', 'Convencer con argumentos', id FROM competencias WHERE nombre = 'Negociación';
 
 -- ---------- Opciones de respuesta reutilizables ----------
-INSERT INTO opciones_respuesta (nombre) VALUES ('Escala Likert 1 a 5');
-INSERT INTO opciones_respuesta (nombre) VALUES ('Si / No');
+INSERT INTO opciones_respuesta (nombre, descripcion, activa) VALUES ('Escala Likert 1 a 5', 'Escala de frecuencia de 5 niveles', true);
+INSERT INTO opciones_respuesta (nombre, descripcion, activa) VALUES ('Si / No', 'Respuesta dicotómica', true);
+INSERT INTO opciones_respuesta (nombre, descripcion, activa) VALUES ('Verdadero / Falso', 'Respuesta booleana', true);
+
+-- ---------- Items de opciones de respuesta ----------
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 1, 'NUNCA', id FROM opciones_respuesta WHERE nombre = 'Escala Likert 1 a 5';
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 2, 'RARA VEZ', id FROM opciones_respuesta WHERE nombre = 'Escala Likert 1 a 5';
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 3, 'A VECES', id FROM opciones_respuesta WHERE nombre = 'Escala Likert 1 a 5';
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 4, 'FRECUENTEMENTE', id FROM opciones_respuesta WHERE nombre = 'Escala Likert 1 a 5';
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 5, 'SIEMPRE', id FROM opciones_respuesta WHERE nombre = 'Escala Likert 1 a 5';
+
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 1, 'SI', id FROM opciones_respuesta WHERE nombre = 'Si / No';
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 2, 'NO', id FROM opciones_respuesta WHERE nombre = 'Si / No';
+
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 1, 'VERDADERO', id FROM opciones_respuesta WHERE nombre = 'Verdadero / Falso';
+INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 2, 'FALSO', id FROM opciones_respuesta WHERE nombre = 'Verdadero / Falso';
 
 -- ---------- Preguntas ----------
 -- Evaluables (factor con 2 o mas preguntas): Compromiso Institucional (2), Comunicacion Asertiva (2), Analisis de Riesgos (3)
@@ -57,22 +71,14 @@ INSERT INTO pregunta (nombre, enunciado, descripcion, tipo, id_factor, id_opcion
 SELECT 'P-010', '¿Reconoce el trabajo bien hecho de su equipo?', 'Pregunta eliminada', 'ESCALA', f.id, o.id, true
 FROM factores f, opciones_respuesta o WHERE f.nombre = 'Delegacion' AND o.nombre = 'Escala Likert 1 a 5';
 
--- ---------- Items de las opciones de respuesta y ponderaciones por pregunta (CU026) ----------
-INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 1, 'NUNCA', id FROM opciones_respuesta WHERE nombre = 'Escala Likert 1 a 5';
-INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 2, 'CASI NUNCA', id FROM opciones_respuesta WHERE nombre = 'Escala Likert 1 a 5';
-INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 3, 'A VECES', id FROM opciones_respuesta WHERE nombre = 'Escala Likert 1 a 5';
-INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 4, 'CASI SIEMPRE', id FROM opciones_respuesta WHERE nombre = 'Escala Likert 1 a 5';
-INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 5, 'SIEMPRE', id FROM opciones_respuesta WHERE nombre = 'Escala Likert 1 a 5';
-INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 1, 'SI', id FROM opciones_respuesta WHERE nombre = 'Si / No';
-INSERT INTO items_opcion (orden, descripcion, opcion_respuesta_id) SELECT 2, 'NO', id FROM opciones_respuesta WHERE nombre = 'Si / No';
-
+-- ---------- Ponderaciones de cada item por pregunta (CU026: puntaje de la nota 3) ----------
 -- Las ponderaciones de cada pregunta suman 10: Likert 0+1+2+3+4, Si/No 10+0
-INSERT INTO ponderaciones_opcion (pregunta_id, item_opcion_id, ponderacion)
+INSERT INTO ponderacion_opcion (id_pregunta, id_item_opcion, ponderacion)
 SELECT p.id_pregunta, i.id, i.orden - 1
 FROM pregunta p JOIN items_opcion i ON i.opcion_respuesta_id = p.id_opcion_respuesta
   JOIN opciones_respuesta o ON o.id = p.id_opcion_respuesta
 WHERE o.nombre = 'Escala Likert 1 a 5';
-INSERT INTO ponderaciones_opcion (pregunta_id, item_opcion_id, ponderacion)
+INSERT INTO ponderacion_opcion (id_pregunta, id_item_opcion, ponderacion)
 SELECT p.id_pregunta, i.id, CASE WHEN i.orden = 1 THEN 10 ELSE 0 END
 FROM pregunta p JOIN items_opcion i ON i.opcion_respuesta_id = p.id_opcion_respuesta
   JOIN opciones_respuesta o ON o.id = p.id_opcion_respuesta

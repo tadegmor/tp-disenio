@@ -1,10 +1,10 @@
-import type { Metadata } from "next";
-import GestionPreguntas from "../components/GestionPreguntas";
-
-export const metadata: Metadata = {
-  title: "Gestión de Preguntas | Capital Humano",
-};
+import RoleGuard from "@/app/components/RoleGuard";
+import GestionPreguntas from "@/app/components/GestionPreguntas";
 
 export default function PreguntasPage() {
-  return <GestionPreguntas />;
+  return (
+    <RoleGuard allowedRoles={["CONSULTOR"]}>
+      <GestionPreguntas />
+    </RoleGuard>
+  );
 }

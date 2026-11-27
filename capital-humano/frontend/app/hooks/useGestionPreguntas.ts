@@ -78,11 +78,11 @@ export function useGestionPreguntas() {
 
   // CU023 + 5.B.2: elimina y actualiza la grilla repitiendo la última búsqueda
   const confirmarBaja = useCallback(async () => {
-    if (!seleccionada) return;
+    if (!seleccionada || seleccionada.id == null) return;
     setEliminando(true);
     try {
-      await eliminarPregunta(seleccionada.id);
-      setConfirmandoBaja(false);
+        await eliminarPregunta(seleccionada.id);
+        setConfirmandoBaja(false);
       setMensaje({
         tipo: "exito",
         texto: `Los datos de la pregunta ${seleccionada.nombre} han sido eliminados del sistema.`,

@@ -135,16 +135,16 @@ public class CuestionarioService {
      */
     private void calcularResultados(Cuestionario cuestionario, LocalDateTime ahora) {
         // competenciaId -> (factorId -> suma de ponderaciones)
-        Map<Long, Map<Long, Integer>> sumas = new HashMap<>();
+        Map<Long, Map<Long, Double>> sumas = new HashMap<>();
         cuestionario.getBloques().stream()
                 .flatMap(bloque -> bloque.getRespuestas().stream())
                 .forEach(r -> sumas
                         .computeIfAbsent(r.getFactor().getCompetencia().getId(), id -> new HashMap<>())
-                        .merge(r.getFactor().getId(), r.getPonderacion(), Integer::sum));
+                        .merge(r.getFactor().getId(), r.getPonderacion(), Double::sum));
 
         double preguntasPorFactor = cuestionario.getCantidadPreguntasPorFactor();
         for (PuestoCompetencia requerida : competenciasDelPuesto(cuestionario)) {
-            Map<Long, Integer> factores = sumas.get(requerida.getCompetencia().getId());
+            Map<Long, Double> factores = sumas.get(requerida.getCompetencia().getId());
             if (factores == null) {
                 continue; // competencia sin factores evaluables
             }
