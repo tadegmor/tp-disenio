@@ -51,11 +51,13 @@ export default function ResultsTable({
                     key={p.id}
                     tabIndex={0}
                     aria-selected={activa}
-                    onClick={() => onSeleccionar(p.id)}
+                    onClick={() => {
+                      if (p.id != null) onSeleccionar(p.id);
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
-                        onSeleccionar(p.id);
+                        if (p.id != null) onSeleccionar(p.id);
                       }
                     }}
                     className={`cursor-pointer outline-none transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500 ${
