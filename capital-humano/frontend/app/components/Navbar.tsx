@@ -20,8 +20,8 @@ function claseLink(activo: boolean): string {
 }
 
 function resolverHref(href: string, candidatoId?: string): string {
-  if (href === "/cuestionarios" && candidatoId?.trim()) {
-    return `/cuestionarios?candidatoId=${encodeURIComponent(candidatoId.trim())}`;
+  if (href === "/cuestionario" && candidatoId?.trim()) {
+    return `/cuestionario?candidatoId=${encodeURIComponent(candidatoId.trim())}`;
   }
   return href;
 }
@@ -65,7 +65,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <Link
-          href={sesion?.rol === "CANDIDATO" ? resolverHref("/cuestionarios", sesion.candidatoId) : "/"}
+          href={sesion?.rol === "CANDIDATO" ? resolverHref("/cuestionario", sesion.candidatoId) : "/"}
           onClick={() => setMenuAbierto(false)}
           className="flex items-center gap-3 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
         >

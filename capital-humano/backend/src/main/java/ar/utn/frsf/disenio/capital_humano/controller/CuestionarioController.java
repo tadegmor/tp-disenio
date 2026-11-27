@@ -4,6 +4,7 @@ import ar.utn.frsf.disenio.capital_humano.dto.BloqueCuestionarioDTO;
 import ar.utn.frsf.disenio.capital_humano.dto.CompletarBloqueRequestDTO;
 import ar.utn.frsf.disenio.capital_humano.dto.CuestionarioDTO;
 import ar.utn.frsf.disenio.capital_humano.service.CuestionarioService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -12,15 +13,22 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/cuestionarios")
+@RequestMapping("/api/cuestionario")
 @CrossOrigin(origins = "http://localhost:3000")
 @RequiredArgsConstructor
 public class CuestionarioController {
 
     private final CuestionarioService cuestionarioService;
+
+    /** Listado "Cuestionarios pendientes" del candidato que ingresó con el login (desde donde se inicia el CU026). */
+    @GetMapping(params = "candidatoId")
+    public ResponseEntity<List<CuestionarioDTO>> listarPorCandidato(@RequestParam Long candidatoId) {
+        return ResponseEntity.ok(cuestionarioService.listarPorCandidato(candidatoId));
+    }
 
     /** Paso 1: estado del cuestionario ya verificado (1.A / 1.B). 404 si no existe. */
     @GetMapping("/{id}")

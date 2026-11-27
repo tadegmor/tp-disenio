@@ -71,19 +71,6 @@ INSERT INTO pregunta (nombre, enunciado, descripcion, tipo, id_factor, id_opcion
 SELECT 'P-010', '¿Reconoce el trabajo bien hecho de su equipo?', 'Pregunta eliminada', 'ESCALA', f.id, o.id, true
 FROM factores f, opciones_respuesta o WHERE f.nombre = 'Delegacion' AND o.nombre = 'Escala Likert 1 a 5';
 
--- ---------- Ponderaciones de cada item por pregunta (CU026: puntaje de la nota 3) ----------
--- Las ponderaciones de cada pregunta suman 10: Likert 0+1+2+3+4, Si/No 10+0
-INSERT INTO ponderacion_opcion (id_pregunta, id_item_opcion, ponderacion)
-SELECT p.id_pregunta, i.id, i.orden - 1
-FROM pregunta p JOIN items_opcion i ON i.opcion_respuesta_id = p.id_opcion_respuesta
-  JOIN opciones_respuesta o ON o.id = p.id_opcion_respuesta
-WHERE o.nombre = 'Escala Likert 1 a 5';
-INSERT INTO ponderacion_opcion (id_pregunta, id_item_opcion, ponderacion)
-SELECT p.id_pregunta, i.id, CASE WHEN i.orden = 1 THEN 10 ELSE 0 END
-FROM pregunta p JOIN items_opcion i ON i.opcion_respuesta_id = p.id_opcion_respuesta
-  JOIN opciones_respuesta o ON o.id = p.id_opcion_respuesta
-WHERE o.nombre = 'Si / No';
-
 -- ---------- Puestos ----------
 INSERT INTO puestos (codigo, nombre, empresa, eliminado) VALUES ('P001', 'Desarrollador Java Senior', 'Tech Solutions', false);
 INSERT INTO puestos (codigo, nombre, empresa, eliminado) VALUES ('P002', 'Analista Funcional', 'Tech Solutions', false);
@@ -125,3 +112,66 @@ FROM evaluaciones e, candidatos c WHERE c.numero_candidato = '014';
 INSERT INTO cuestionarios (evaluacion_id, candidato_id, clave_ingreso, fecha_creacion, fecha_inicio, fecha_fin, ultimo_ingreso, fecha_cambio_estado, estado, cantidad_accesos, cantidad_maxima_accesos, cantidad_preguntas_por_factor, cantidad_preguntas_por_bloque, tiempo_maximo_activo, tiempo_maximo_completar)
 SELECT e.id, c.id, 'L9M2N3P4', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'COMPLETO', 1, 3, 2, 5, 72, 90
 FROM evaluaciones e, candidatos c WHERE c.numero_candidato = '012';
+
+-- =====================================================================
+-- Datos adicionales para CU028 - Emitir Orden de Mérito (sobre P001)
+-- =====================================================================
+
+INSERT INTO cuestionarios (evaluacion_id, candidato_id, clave_ingreso, fecha_creacion, fecha_inicio, fecha_fin, ultimo_ingreso, fecha_cambio_estado, estado, cantidad_accesos, cantidad_maxima_accesos, cantidad_preguntas_por_factor, cantidad_preguntas_por_bloque, tiempo_maximo_activo, tiempo_maximo_completar)
+SELECT e.id, c.id, 'Q1W2E3R4', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'COMPLETO', 2, 3, 2, 5, 72, 90
+FROM evaluaciones e, candidatos c WHERE c.numero_candidato = '018';
+
+INSERT INTO cuestionarios (evaluacion_id, candidato_id, clave_ingreso, fecha_creacion, fecha_inicio, fecha_fin, ultimo_ingreso, fecha_cambio_estado, estado, cantidad_accesos, cantidad_maxima_accesos, cantidad_preguntas_por_factor, cantidad_preguntas_por_bloque, tiempo_maximo_activo, tiempo_maximo_completar)
+SELECT e.id, c.id, 'T5Y6U7I8', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'COMPLETO', 1, 3, 2, 5, 72, 90
+FROM evaluaciones e, candidatos c WHERE c.numero_candidato = '020';
+
+INSERT INTO resultados (cuestionario_id, competencia_id, puntaje_obtenido, puntaje_requerido, fecha_calculo)
+SELECT cu.id, comp.id, 12.0, 10.0, CURRENT_TIMESTAMP
+FROM cuestionarios cu
+JOIN candidatos cand ON cu.candidato_id = cand.id,
+competencias comp
+WHERE cand.numero_candidato = '018' AND comp.nombre = 'Lealtad';
+
+INSERT INTO resultados (cuestionario_id, competencia_id, puntaje_obtenido, puntaje_requerido, fecha_calculo)
+SELECT cu.id, comp.id, 10.0, 8.0, CURRENT_TIMESTAMP
+FROM cuestionarios cu JOIN candidatos cand ON cu.candidato_id = cand.id, competencias comp
+WHERE cand.numero_candidato = '018' AND comp.nombre = 'Trabajo en Equipo';
+
+INSERT INTO resultados (cuestionario_id, competencia_id, puntaje_obtenido, puntaje_requerido, fecha_calculo)
+SELECT cu.id, comp.id, 10.0, 10.0, CURRENT_TIMESTAMP
+FROM cuestionarios cu JOIN candidatos cand ON cu.candidato_id = cand.id, competencias comp
+WHERE cand.numero_candidato = '012' AND comp.nombre = 'Lealtad';
+
+INSERT INTO resultados (cuestionario_id, competencia_id, puntaje_obtenido, puntaje_requerido, fecha_calculo)
+SELECT cu.id, comp.id, 9.0, 8.0, CURRENT_TIMESTAMP
+FROM cuestionarios cu JOIN candidatos cand ON cu.candidato_id = cand.id, competencias comp
+WHERE cand.numero_candidato = '012' AND comp.nombre = 'Trabajo en Equipo';
+
+INSERT INTO resultados (cuestionario_id, competencia_id, puntaje_obtenido, puntaje_requerido, fecha_calculo)
+SELECT cu.id, comp.id, 11.0, 10.0, CURRENT_TIMESTAMP
+FROM cuestionarios cu JOIN candidatos cand ON cu.candidato_id = cand.id, competencias comp
+WHERE cand.numero_candidato = '020' AND comp.nombre = 'Lealtad';
+
+INSERT INTO resultados (cuestionario_id, competencia_id, puntaje_obtenido, puntaje_requerido, fecha_calculo)
+SELECT cu.id, comp.id, 5.0, 8.0, CURRENT_TIMESTAMP
+FROM cuestionarios cu JOIN candidatos cand ON cu.candidato_id = cand.id, competencias comp
+WHERE cand.numero_candidato = '020' AND comp.nombre = 'Trabajo en Equipo';
+
+INSERT INTO ponderacion_opcion (id_pregunta, id_item_opcion, ponderacion)
+SELECT p.id_pregunta, io.id, v.pond
+FROM pregunta p
+JOIN items_opcion io ON io.opcion_respuesta_id = p.id_opcion_respuesta
+JOIN (VALUES
+    ('NUNCA', 0.0),
+    ('RARA VEZ', 2.5),
+    ('A VECES', 5.0),
+    ('FRECUENTEMENTE', 7.5),
+    ('SIEMPRE', 10.0)
+) AS v(desc_item, pond) ON io.descripcion = v.desc_item
+WHERE p.nombre IN ('P-001', 'P-002', 'P-003', 'P-005', 'P-006', 'P-007', 'P-008', 'P-010');
+
+INSERT INTO ponderacion_opcion (id_pregunta, id_item_opcion, ponderacion)
+SELECT p.id_pregunta, io.id, CASE WHEN io.descripcion = 'SI' THEN 10.0 ELSE 0.0 END
+FROM pregunta p
+JOIN items_opcion io ON io.opcion_respuesta_id = p.id_opcion_respuesta
+WHERE p.nombre IN ('P-004', 'P-009');

@@ -16,4 +16,13 @@ public interface CuestionarioRepository extends JpaRepository<Cuestionario, Long
     List<Cuestionario> buscarPorCandidatos(@Param("candidatoIds") Collection<Long> candidatoIds);
     
     boolean existsByClaveIngreso(String claveIngreso);
+
+    @Query("""
+        SELECT DISTINCT c FROM Cuestionario c
+          JOIN FETCH c.candidato cand
+          JOIN FETCH c.evaluacion ev
+        WHERE ev.id IN :evaluacionIds
+          AND cand.eliminado = false
+        """)
+    List<Cuestionario> buscarPorEvaluaciones(@Param("evaluacionIds") Collection<Long> evaluacionIds);
 }

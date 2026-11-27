@@ -16,9 +16,9 @@ function resolverDestinoPorRol(
 ): string {
   if (rol === "CANDIDATO") {
     if (candidatoId?.trim()) {
-      return `/cuestionarios?candidatoId=${encodeURIComponent(candidatoId.trim())}`;
+      return `/cuestionario?candidatoId=${encodeURIComponent(candidatoId.trim())}`;
     }
-    return "/cuestionarios";
+    return "/cuestionario";
   }
   return "/";
 }

@@ -34,15 +34,21 @@ export const NAV_ITEMS: NavItem[] = [
     roles: ["CONSULTOR"],
   },
   {
-    href: "/cuestionarios",
-    label: "Mis Cuestionarios",
-    description: "Ver y completar cuestionarios pendientes del candidato.",
+    href: "/cuestionario",
+    label: "Completar Cuestionario",
+    codigo: "CU026",
+    description: "El candidato responde, por bloques, el cuestionario que le fue asignado.",
     roles: ["CANDIDATO"],
+  },
+  {
+    href: "/orden-merito",
+    codigo: "CU028",
+    label: "Emitir Orden de Mérito",
+    description:
+      "Consultar puestos evaluados y emitir el ranking de candidatos por orden de mérito.",
+    roles: ["CONSULTOR"],
   },
 ];
 
 // Valor por defecto del consultor para el mini login
 export const CONSULTOR_POR_DEFECTO = "Pedro Martínez";
-// Provisorio: el menú de cuestionarios del candidato todavía usa datos de demostración,
-// así que "Completar cuestionario" abre este cuestionario de data.sql (CU026)
-export const CUESTIONARIO_CANDIDATO_ID = 1;

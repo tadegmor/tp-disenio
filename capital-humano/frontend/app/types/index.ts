@@ -70,7 +70,14 @@ export interface SesionMiniLogin {
   candidatoId?: string;
 }
 
-export type EstadoCuestionario = "PENDIENTE" | "COMPLETADO";
+export type EstadoCuestionario =
+  | "PENDIENTE"
+  | "COMPLETADO"
+  | "ACTIVO"
+  | "SIN_CONTESTAR"
+  | "EN_PROCESO"
+  | "INCOMPLETO"
+  | "COMPLETO";
 
 export interface CuestionarioPendiente {
   id: string;
@@ -79,4 +86,48 @@ export interface CuestionarioPendiente {
   puesto: string;
   estado: EstadoCuestionario;
   fechaAsignacion: string;
+}
+
+// =====================================================================
+// CU028 - Emitir Orden de Mérito
+// =====================================================================
+
+export interface PuestoDTO {
+  id: number;
+  codigo: string;
+  nombre: string;
+  empresa: string;
+  cantidadCandidatos: number;
+  evaluacionesCompletas: number;
+}
+
+export interface EvaluacionOpcion {
+  id: number;
+  fechaCreacion: string;
+  cantidadCuestionarios: number;
+}
+
+export interface CandidatoDTO {
+  id: number;
+  apellido: string;
+  nombre: string;
+  tipoDocumento: string;
+  numeroDocumento: string;
+  numeroCandidato: string;
+  estadoCuestionario?: string | null;
+}
+
+export interface CuestionarioDTO {
+  estado: EstadoCuestionario;
+  fechaInicio: string | null;
+  fechaFin: string | null;
+  ultimoIngreso: string | null;
+  cantidadAccesos: number;
+}
+
+export interface OrdenMeritoDTO {
+  candidato: CandidatoDTO;
+  cuestionario: CuestionarioDTO;
+  puntajeObtenido: number | null;
+  cumplePonderacionesMinimas: boolean;
 }

@@ -42,6 +42,16 @@ public class CuestionarioService {
     private final CuestionarioMapper cuestionarioMapper;
     private final CuestionarioProperties parametros;
 
+    /**
+     * Cuestionarios del candidato para el listado del login. No se vencen acá: el aviso de 1.A / 1.B
+     * lo tiene que ver el candidato al ingresar (paso 1).
+     */
+    public List<CuestionarioDTO> listarPorCandidato(Long candidatoId) {
+        return cuestionarioRepository.buscarPorCandidatos(List.of(candidatoId)).stream()
+                .map(cuestionarioMapper::mapToDTO)
+                .toList();
+    }
+
     /** Paso 1: si se superaron los plazos o los accesos, el patrón State lo pasa a INCOMPLETO (1.A) o SIN_CONTESTAR (1.B). */
     @Transactional
     public CuestionarioDTO consultarCuestionario(Long cuestionarioId) {

@@ -25,4 +25,12 @@ public interface PuestoRepository extends JpaRepository<Puesto, Long> {
     List<Puesto> buscarPorFiltros(@Param("codigo") String codigo,
                                   @Param("nombre") String nombre,
                                   @Param("empresa") String empresa);
+    
+    @Query("""
+            SELECT DISTINCT p FROM Puesto p
+              LEFT JOIN FETCH p.competenciasPuesto pc
+              LEFT JOIN FETCH pc.competencia
+            WHERE p.id = :id AND p.eliminado = false
+            """)
+    Optional<Puesto> buscarConCompetenciasPorId(@Param("id") Long id);
 }

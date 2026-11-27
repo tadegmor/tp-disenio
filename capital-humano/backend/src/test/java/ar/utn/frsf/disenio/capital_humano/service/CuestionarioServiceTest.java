@@ -109,6 +109,17 @@ class CuestionarioServiceTest {
                 .isEqualTo(EstadoCuestionario.INCOMPLETO);
     }
 
+    @Test
+    void elListadoDelCandidatoTraeSusCuestionarios() {
+        Cuestionario cuestionario = porClave(CLAVE_ACTIVO);
+        assertThat(cuestionarioService.listarPorCandidato(cuestionario.getCandidato().getId()))
+                .singleElement()
+                .satisfies(dto -> {
+                    assertThat(dto.getCuestionarioId()).isEqualTo(cuestionario.getId());
+                    assertThat(dto.getEstado()).isEqualTo(EstadoCuestionario.ACTIVO);
+                });
+    }
+
     private Cuestionario porClave(String clave) {
         return cuestionarioRepository.findAll().stream()
                 .filter(c -> c.getClaveIngreso().equals(clave))
