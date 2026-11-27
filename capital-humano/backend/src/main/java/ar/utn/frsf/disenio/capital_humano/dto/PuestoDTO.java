@@ -14,4 +14,6 @@ public class PuestoDTO {
     private String codigo;
     private String nombre;
     private String empresa;
+    private Integer cantidadCandidatos;
+    private Integer evaluacionesCompletas;
 }

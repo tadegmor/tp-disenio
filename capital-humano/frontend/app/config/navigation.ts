@@ -39,6 +39,13 @@ export const NAV_ITEMS: NavItem[] = [
     description: "Ver y completar cuestionarios pendientes del candidato.",
     roles: ["CANDIDATO"],
   },
+  {
+  codigo: "CU028",
+  label: "Emitir Orden de Mérito",
+  description: "Consultar puestos evaluados y emitir el ranking de candidatos por orden de mérito.",
+  href: "/orden-merito",
+  roles: ["CONSULTOR"],
+  },
 ];
 
 // Valor por defecto del consultor para el mini login
