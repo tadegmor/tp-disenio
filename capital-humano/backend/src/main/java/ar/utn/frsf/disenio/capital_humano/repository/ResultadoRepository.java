@@ -14,7 +14,7 @@ public interface ResultadoRepository extends JpaRepository<Resultado, Long> {
             SELECT r FROM Resultado r
               JOIN FETCH r.cuestionario cu
               JOIN FETCH r.competencia comp
-              JOIN FETCH r.candidato cand
+              JOIN FETCH cu.candidato cand
             WHERE cu.evaluacion.id = :evaluacionId
             """)
     List<Resultado> buscarPorEvaluacion(@Param("evaluacionId") Long evaluacionId);

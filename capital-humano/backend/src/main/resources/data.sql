@@ -125,32 +125,53 @@ INSERT INTO cuestionarios (evaluacion_id, candidato_id, clave_ingreso, fecha_cre
 SELECT e.id, c.id, 'T5Y6U7I8', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'COMPLETO', 1, 3, 2, 5, 72, 90
 FROM evaluaciones e, candidatos c WHERE c.numero_candidato = '020';
 
-INSERT INTO resultados (cuestionario_id, competencia_id, candidato_id, puntaje_obtenido, puntaje_requerido, fecha_calculo)
-SELECT cu.id, comp.id, cand.id, 12.0, 10.0, CURRENT_TIMESTAMP
-FROM cuestionarios cu JOIN candidatos cand ON cu.candidato_id = cand.id, competencias comp
+INSERT INTO resultados (cuestionario_id, competencia_id, puntaje_obtenido, puntaje_requerido, fecha_calculo)
+SELECT cu.id, comp.id, 12.0, 10.0, CURRENT_TIMESTAMP
+FROM cuestionarios cu
+JOIN candidatos cand ON cu.candidato_id = cand.id,
+competencias comp
 WHERE cand.numero_candidato = '018' AND comp.nombre = 'Lealtad';
 
-INSERT INTO resultados (cuestionario_id, competencia_id, candidato_id, puntaje_obtenido, puntaje_requerido, fecha_calculo)
-SELECT cu.id, comp.id, cand.id, 10.0, 8.0, CURRENT_TIMESTAMP
+INSERT INTO resultados (cuestionario_id, competencia_id, puntaje_obtenido, puntaje_requerido, fecha_calculo)
+SELECT cu.id, comp.id, 10.0, 8.0, CURRENT_TIMESTAMP
 FROM cuestionarios cu JOIN candidatos cand ON cu.candidato_id = cand.id, competencias comp
 WHERE cand.numero_candidato = '018' AND comp.nombre = 'Trabajo en Equipo';
 
-INSERT INTO resultados (cuestionario_id, competencia_id, candidato_id, puntaje_obtenido, puntaje_requerido, fecha_calculo)
-SELECT cu.id, comp.id, cand.id, 10.0, 10.0, CURRENT_TIMESTAMP
+INSERT INTO resultados (cuestionario_id, competencia_id, puntaje_obtenido, puntaje_requerido, fecha_calculo)
+SELECT cu.id, comp.id, 10.0, 10.0, CURRENT_TIMESTAMP
 FROM cuestionarios cu JOIN candidatos cand ON cu.candidato_id = cand.id, competencias comp
 WHERE cand.numero_candidato = '012' AND comp.nombre = 'Lealtad';
 
-INSERT INTO resultados (cuestionario_id, competencia_id, candidato_id, puntaje_obtenido, puntaje_requerido, fecha_calculo)
-SELECT cu.id, comp.id, cand.id, 9.0, 8.0, CURRENT_TIMESTAMP
+INSERT INTO resultados (cuestionario_id, competencia_id, puntaje_obtenido, puntaje_requerido, fecha_calculo)
+SELECT cu.id, comp.id, 9.0, 8.0, CURRENT_TIMESTAMP
 FROM cuestionarios cu JOIN candidatos cand ON cu.candidato_id = cand.id, competencias comp
 WHERE cand.numero_candidato = '012' AND comp.nombre = 'Trabajo en Equipo';
 
-INSERT INTO resultados (cuestionario_id, competencia_id, candidato_id, puntaje_obtenido, puntaje_requerido, fecha_calculo)
-SELECT cu.id, comp.id, cand.id, 11.0, 10.0, CURRENT_TIMESTAMP
+INSERT INTO resultados (cuestionario_id, competencia_id, puntaje_obtenido, puntaje_requerido, fecha_calculo)
+SELECT cu.id, comp.id, 11.0, 10.0, CURRENT_TIMESTAMP
 FROM cuestionarios cu JOIN candidatos cand ON cu.candidato_id = cand.id, competencias comp
 WHERE cand.numero_candidato = '020' AND comp.nombre = 'Lealtad';
 
-INSERT INTO resultados (cuestionario_id, competencia_id, candidato_id, puntaje_obtenido, puntaje_requerido, fecha_calculo)
-SELECT cu.id, comp.id, cand.id, 5.0, 8.0, CURRENT_TIMESTAMP
+INSERT INTO resultados (cuestionario_id, competencia_id, puntaje_obtenido, puntaje_requerido, fecha_calculo)
+SELECT cu.id, comp.id, 5.0, 8.0, CURRENT_TIMESTAMP
 FROM cuestionarios cu JOIN candidatos cand ON cu.candidato_id = cand.id, competencias comp
 WHERE cand.numero_candidato = '020' AND comp.nombre = 'Trabajo en Equipo';
+
+INSERT INTO ponderacion_opcion (id_pregunta, id_item_opcion, ponderacion)
+SELECT p.id_pregunta, io.id, v.pond
+FROM pregunta p
+JOIN items_opcion io ON io.opcion_respuesta_id = p.id_opcion_respuesta
+JOIN (VALUES
+    ('NUNCA', 0.0),
+    ('RARA VEZ', 2.5),
+    ('A VECES', 5.0),
+    ('FRECUENTEMENTE', 7.5),
+    ('SIEMPRE', 10.0)
+) AS v(desc_item, pond) ON io.descripcion = v.desc_item
+WHERE p.nombre IN ('P-001', 'P-002', 'P-003', 'P-005', 'P-006', 'P-007', 'P-008', 'P-010');
+
+INSERT INTO ponderacion_opcion (id_pregunta, id_item_opcion, ponderacion)
+SELECT p.id_pregunta, io.id, CASE WHEN io.descripcion = 'SI' THEN 10.0 ELSE 0.0 END
+FROM pregunta p
+JOIN items_opcion io ON io.opcion_respuesta_id = p.id_opcion_respuesta
+WHERE p.nombre IN ('P-004', 'P-009');

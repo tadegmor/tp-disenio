@@ -8,6 +8,7 @@ import org.hibernate.annotations.SQLRestriction;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @Table(name = "pregunta")
@@ -62,5 +63,12 @@ public class Pregunta {
         po.setItemOpcion(item);
         po.setPonderacion(ponderacion);
         this.ponderaciones.add(po);
+    }
+
+    /** CU026: la opción elegida por el candidato tiene que ser un ítem de esta pregunta. */
+    public Optional<PonderacionOpcion> ponderacionDe(Long itemOpcionId) {
+        return ponderaciones.stream()
+                .filter(p -> p.getItemOpcion().getId().equals(itemOpcionId))
+                .findFirst();
     }
 }

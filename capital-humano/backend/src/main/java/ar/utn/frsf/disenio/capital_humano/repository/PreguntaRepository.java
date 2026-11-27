@@ -62,4 +62,13 @@ public interface PreguntaRepository extends JpaRepository<Pregunta, Long> {
             """)
     List<Long> competenciasConFactoresEvaluables(@Param("competenciaIds") Collection<Long> competenciaIds,
                                                  @Param("minimoPreguntas") long minimoPreguntas);
+
+    // ---- CU026 (paso 3) ----
+    /** Preguntas activas de todos los factores de las competencias indicadas. */
+    @Query("""
+            SELECT p FROM Pregunta p
+              JOIN FETCH p.factor f
+            WHERE f.competencia.id IN :competenciaIds
+            """)
+    List<Pregunta> buscarPorCompetencias(@Param("competenciaIds") Collection<Long> competenciaIds);
 }

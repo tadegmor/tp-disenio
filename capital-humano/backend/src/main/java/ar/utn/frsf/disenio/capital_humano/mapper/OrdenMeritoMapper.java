@@ -36,12 +36,19 @@ public class OrdenMeritoMapper {
     }
 
     public CuestionarioDTO toCuestionarioDTO(Cuestionario cuestionario) {
+        if (cuestionario == null) {
+            return null;
+        }
+        var candidato = cuestionario.getCandidato();
+        var evaluacion = cuestionario.getEvaluacion();
+        var puesto = evaluacion != null ? evaluacion.getPuesto() : null;
+
         return CuestionarioDTO.builder()
-                .estado(cuestionario.getEstado().name())
-                .fechaInicio(cuestionario.getFechaInicio())
-                .fechaFin(cuestionario.getFechaFin())
-                .ultimoIngreso(cuestionario.getUltimoIngreso())
-                .cantidadAccesos(cuestionario.getCantidadAccesos())
+                .cuestionarioId(cuestionario.getId())
+                .estado(cuestionario.getEstado())
+                .apellidoCandidato(candidato != null ? candidato.getApellido() : null)
+                .nombreCandidato(candidato != null ? candidato.getNombre() : null)
+                .nombrePuesto(puesto != null ? puesto.getNombre() : null)
                 .build();
     }
 }

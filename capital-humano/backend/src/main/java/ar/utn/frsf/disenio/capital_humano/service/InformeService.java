@@ -212,13 +212,11 @@ public class InformeService {
         noAlcanzanMinimo.sort(porPuntajeDesc);
 
         otrosEstados.sort(Comparator.comparingInt(item -> {
-            try {
-                return ORDEN_ESTADOS_NO_COMPLETOS.indexOf(
-                        EstadoCuestionario.valueOf(item.getCuestionario().getEstado())
-                );
-            } catch (IllegalArgumentException e) {
-                return Integer.MAX_VALUE;
-            }
+            EstadoCuestionario estado = item != null && item.getCuestionario() != null
+                    ? item.getCuestionario().getEstado()
+                    : null;
+            int idx = estado != null ? ORDEN_ESTADOS_NO_COMPLETOS.indexOf(estado) : -1;
+            return idx >= 0 ? idx : Integer.MAX_VALUE;
         }));
 
         List< OrdenMeritoDTO > salida = new ArrayList<>();

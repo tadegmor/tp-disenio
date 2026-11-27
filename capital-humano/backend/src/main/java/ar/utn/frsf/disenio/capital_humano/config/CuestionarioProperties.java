@@ -20,4 +20,12 @@ public class CuestionarioProperties {
     private int tiempoMaximoActivoHoras = 72;
     private int tiempoMaximoCompletarMinutos = 90;
     private int cantidadMaximaAccesos = 3;
+
+    /** Texto de la pantalla "Cuestionario - Instrucciones" (CU026 paso 1). %d = tiempo máximo para completar. */
+    private String instrucciones = """
+            Lea atentamente cada pregunta y seleccione la opción que mejor lo represente.
+            Las preguntas se presentan en bloques: debe responder todas las del bloque para avanzar \
+            y, una vez enviado, no podrá volver a modificarlo.
+            Dispone de %d minutos desde que inicia el cuestionario para completarlo. \
+            Si se retira, podrá continuar más tarde desde el bloque en que quedó.""";
 }

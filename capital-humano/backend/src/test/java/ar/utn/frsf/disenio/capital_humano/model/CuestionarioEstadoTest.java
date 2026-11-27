@@ -1,4 +1,4 @@
-package ar.utn.frsf.disenio.capital_humano.model;
+package ar.utn.frsf.disenio.capital_humano;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

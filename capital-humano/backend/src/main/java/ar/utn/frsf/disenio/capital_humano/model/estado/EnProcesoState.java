@@ -16,15 +16,22 @@ final class EnProcesoState extends EstadoCuestionarioBase {
         return false;
     }
 
+    /** CU026 1.C y 8.A: ya fue iniciado, se retoma en el bloque pendiente sin cambiar de estado. */
+    @Override
+    public void iniciar(Cuestionario cuestionario, LocalDateTime ahora) {
+        // no hay transición
+    }
+
     @Override
     public void completar(Cuestionario cuestionario, LocalDateTime ahora) {
         cuestionario.setFechaFin(ahora);
         cuestionario.transicionarA(EstadoCuestionario.COMPLETO, ahora);
     }
 
+    /** CU026 1.A: tiempo máximo para completar o cantidad máxima de accesos superados. */
     @Override
     public void vencer(Cuestionario cuestionario, LocalDateTime ahora) {
-        if (cuestionario.superoTiempoMaximoCompletar(ahora)) {
+        if (cuestionario.superoTiempoMaximoCompletar(ahora) || cuestionario.superoCantidadMaximaAccesos()) {
             cuestionario.transicionarA(EstadoCuestionario.INCOMPLETO, ahora);
         }
     }

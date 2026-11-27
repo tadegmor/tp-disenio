@@ -12,7 +12,7 @@ public interface EstadoCuestionarioState {
     /** CU025 (6.A): solo los cuestionarios activos o en proceso impiden evaluar de nuevo al candidato. */
     boolean permiteNuevaEvaluacion();
 
-    /** CU026 paso 3: el candidato acepta las instrucciones y comienza (ACTIVO a EN_PROCESO). */
+    /** CU026 paso 3: el candidato acepta las instrucciones y comienza (ACTIVO a EN_PROCESO); en proceso, retoma (1.C). */
     void iniciar(Cuestionario cuestionario, LocalDateTime ahora);
 
     /** CU026 paso 8: se respondió el último bloque (EN_PROCESO a COMPLETO). */
