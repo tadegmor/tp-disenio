@@ -1,9 +1,10 @@
 interface AppHeaderProps {
   usuario: string;
+  rol?: "Consultor" | "Candidato";
   onCerrarSesion?: () => void;
 }
 
-export default function AppHeader({ usuario, onCerrarSesion }: AppHeaderProps) {
+export default function AppHeader({ usuario, rol = "Consultor", onCerrarSesion }: AppHeaderProps) {
   const iniciales = usuario
     .split(" ")
     .map((parte) => parte[0])
@@ -19,14 +20,14 @@ export default function AppHeader({ usuario, onCerrarSesion }: AppHeaderProps) {
             CH
           </div>
           <div className="leading-tight">
-            <p className="text-sm font-semibold text-slate-900">Capital Humano</p>
+            <p className="text-sm font-semibold text-slate-900">C@pital Humano</p>
             <p className="text-xs text-slate-500">Evaluación de candidatos</p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
           <p className="hidden text-sm text-slate-600 sm:block">
-            Consultor: <span className="font-medium text-slate-900">{usuario}</span>
+            {rol}: <span className="font-medium text-slate-900">{usuario}</span>
           </p>
           <div
             aria-hidden="true"
@@ -37,8 +38,11 @@ export default function AppHeader({ usuario, onCerrarSesion }: AppHeaderProps) {
           <button
             type="button"
             onClick={onCerrarSesion}
+            // Igual que el Navbar: sin autenticación (CU001) no hay sesión que cerrar
+            disabled={!onCerrarSesion}
+            title={onCerrarSesion ? undefined : "Disponible al integrar la autenticación (CU001)"}
             aria-label="Cerrar sesión"
-            className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:text-slate-400 disabled:hover:bg-transparent"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
