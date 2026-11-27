@@ -40,7 +40,7 @@ export default function LoginPage() {
     }
     setErrorCandidato(null);
     ingresarComoCandidato(idLimpio, nombreCandidato);
-    router.push(`/cuestionarios?candidatoId=${encodeURIComponent(idLimpio)}`);
+    router.push(`/cuestionario?candidatoId=${encodeURIComponent(idLimpio)}`);
   };
 
   return (

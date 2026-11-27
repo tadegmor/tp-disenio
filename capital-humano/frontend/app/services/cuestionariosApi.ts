@@ -6,7 +6,7 @@ import type {
 import { leerError } from "./evaluacionesApi";
 
 // Ruta relativa: Next.js la reenvía al backend con los rewrites de next.config.ts (igual que evaluacionesApi.ts)
-const CUESTIONARIOS_URL = "/api/cuestionarios";
+const CUESTIONARIOS_URL = "/api/cuestionario";
 
 /** Paso 1: el backend verifica accesos y tiempos (1.A / 1.B) antes de devolver el estado. */
 export async function consultarCuestionario(cuestionarioId: number): Promise<CuestionarioDTO> {
