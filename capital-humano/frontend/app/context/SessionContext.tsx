@@ -18,7 +18,7 @@ interface SessionContextValue {
   sesion: SesionMiniLogin | null;
   listo: boolean;
   ingresarComoConsultor: (nombre?: string) => void;
-  ingresarComoCandidato: (numeroCandidato: string, nombre?: string) => void;
+  ingresarComoCandidato: (numeroCandidato: string, nombre: string) => void;
   cerrarSesion: () => void;
   tieneRol: (roles: RolUsuario[]) => boolean;
 }
@@ -66,12 +66,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   );
 
   const ingresarComoCandidato = useCallback(
-    (numeroCandidato: string, nombre?: string) => {
+    (numeroCandidato: string, nombre: string) => {
       const limpio = numeroCandidato.trim();
       persistir({
         rol: "CANDIDATO",
         numeroCandidato: limpio,
-        nombre: nombre?.trim() || `Candidato #${limpio}`,
+        nombre: nombre.trim(),
       });
     },
     [persistir]

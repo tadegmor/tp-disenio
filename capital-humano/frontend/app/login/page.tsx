@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { CONSULTOR_POR_DEFECTO } from "@/app/config/navigation";
 import { useSession } from "@/app/context/SessionContext";
+import { buscarCandidatos } from "@/app/services/evaluacionesApi";
 
 // Números de candidato de data.sql con un cuestionario para completar (010 ACTIVO, 014 EN_PROCESO)
 const NUMEROS_EJEMPLO_CANDIDATO = ["010", "014"];
@@ -14,15 +15,14 @@ export default function LoginPage() {
 
   const [nombreConsultor, setNombreConsultor] = useState(CONSULTOR_POR_DEFECTO);
   const [numeroCandidato, setNumeroCandidato] = useState("");
-  const [nombreCandidato, setNombreCandidato] = useState("");
   const [errorCandidato, setErrorCandidato] = useState<string | null>(null);
+  const [buscandoCandidato, setBuscandoCandidato] = useState(false);
 
   useEffect(() => {
     if (sesion?.rol === "CONSULTOR" && sesion.nombre) {
       setNombreConsultor(sesion.nombre);
     } else if (sesion?.rol === "CANDIDATO") {
       if (sesion.numeroCandidato) setNumeroCandidato(sesion.numeroCandidato);
-      if (sesion.nombre) setNombreCandidato(sesion.nombre);
     }
   }, [sesion]);
 
@@ -32,7 +32,7 @@ export default function LoginPage() {
     router.push("/");
   };
 
-  const handleSubmitCandidato = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmitCandidato = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const numeroLimpio = numeroCandidato.trim();
     if (!numeroLimpio) {
@@ -40,8 +40,22 @@ export default function LoginPage() {
       return;
     }
     setErrorCandidato(null);
-    ingresarComoCandidato(numeroLimpio, nombreCandidato);
-    router.push(`/cuestionario?numeroCandidato=${encodeURIComponent(numeroLimpio)}`);
+    setBuscandoCandidato(true);
+    try {
+      // La búsqueda del CU025 es por "contiene": se toma el candidato con ese número exacto
+      const candidatos = await buscarCandidatos({ apellido: "", nombre: "", numeroCandidato: numeroLimpio });
+      const candidato = candidatos.find((c) => c.numeroCandidato === numeroLimpio);
+      if (!candidato) {
+        setErrorCandidato("No existe un candidato con ese número.");
+        return;
+      }
+      ingresarComoCandidato(numeroLimpio, `${candidato.nombre} ${candidato.apellido}`);
+      router.push(`/cuestionario?numeroCandidato=${encodeURIComponent(numeroLimpio)}`);
+    } catch {
+      setErrorCandidato("No se pudo verificar el número de candidato. Intente nuevamente.");
+    } finally {
+      setBuscandoCandidato(false);
+    }
   };
 
   return (
@@ -160,22 +174,6 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <div>
-                <label
-                  htmlFor="nombre-candidato"
-                  className="block text-sm font-medium text-slate-700"
-                >
-                  Nombre (opcional)
-                </label>
-                <input
-                  id="nombre-candidato"
-                  type="text"
-                  value={nombreCandidato}
-                  onChange={(e) => setNombreCandidato(e.target.value)}
-                  placeholder="Ej. Lucía Gómez"
-                  className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                />
-              </div>
             </form>
           </div>
 
@@ -183,9 +181,10 @@ export default function LoginPage() {
             <button
               type="submit"
               form="form-candidato"
-              className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+              disabled={buscandoCandidato}
+              className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-300"
             >
-              Ver cuestionarios pendientes
+              {buscandoCandidato ? "Verificando…" : "Ver cuestionarios pendientes"}
             </button>
           </div>
         </section>
