@@ -49,6 +49,10 @@ public class OrdenMeritoMapper {
                 .apellidoCandidato(candidato != null ? candidato.getApellido() : null)
                 .nombreCandidato(candidato != null ? candidato.getNombre() : null)
                 .nombrePuesto(puesto != null ? puesto.getNombre() : null)
+                .fechaInicio(cuestionario.getFechaInicio())
+                .fechaFin(cuestionario.getFechaFin())
+                .ultimoIngreso(cuestionario.getUltimoIngreso())
+                .cantidadAccesos(cuestionario.getCantidadAccesos())
                 .build();
     }
 }

@@ -175,3 +175,54 @@ SELECT p.id_pregunta, io.id, CASE WHEN io.descripcion = 'SI' THEN 10.0 ELSE 0.0 
 FROM pregunta p
 JOIN items_opcion io ON io.opcion_respuesta_id = p.id_opcion_respuesta
 WHERE p.nombre IN ('P-004', 'P-009');
+
+-- =====================================================================
+-- Datos adicionales para probar el CU026 sin modificar la base a mano
+-- (van al final: los inserts de arriba asumen una sola evaluacion).
+-- Cada evaluacion nueva se referencia con MAX(id) justo despues de crearla.
+-- =====================================================================
+INSERT INTO candidatos (apellido, nombre, tipo_documento, numero_documento, numero_candidato, eliminado) VALUES ('Lopez', 'Juan', 'DNI', '35111222', '022', false);
+INSERT INTO candidatos (apellido, nombre, tipo_documento, numero_documento, numero_candidato, eliminado) VALUES ('Fernandez', 'Lucia', 'DNI', '36222333', '024', false);
+INSERT INTO candidatos (apellido, nombre, tipo_documento, numero_documento, numero_candidato, eliminado) VALUES ('Romero', 'Diego', 'DNI', '37333444', '026', false);
+INSERT INTO candidatos (apellido, nombre, tipo_documento, numero_documento, numero_candidato, eliminado) VALUES ('Sosa', 'Ana', 'DNI', '38444555', '028', false);
+
+-- ---------- Evaluacion anterior de P001 (hace 30 dias) ----------
+INSERT INTO evaluaciones (puesto_id, fecha_creacion) SELECT id, DATEADD('DAY', -30, CURRENT_TIMESTAMP) FROM puestos WHERE codigo = 'P001';
+
+-- 028 Sosa: COMPLETO hace 30 dias -> historial (su clave vieja ya no sirve para entrar)
+INSERT INTO cuestionarios (evaluacion_id, candidato_id, clave_ingreso, fecha_creacion, fecha_inicio, fecha_fin, ultimo_ingreso, fecha_cambio_estado, estado, cantidad_accesos, cantidad_maxima_accesos, cantidad_preguntas_por_factor, cantidad_preguntas_por_bloque, tiempo_maximo_activo, tiempo_maximo_completar)
+SELECT (SELECT MAX(id) FROM evaluaciones), c.id, 'P5Q6R7S8', DATEADD('DAY', -30, CURRENT_TIMESTAMP), DATEADD('DAY', -29, CURRENT_TIMESTAMP), DATEADD('MINUTE', 50, DATEADD('DAY', -29, CURRENT_TIMESTAMP)), DATEADD('MINUTE', 50, DATEADD('DAY', -29, CURRENT_TIMESTAMP)), DATEADD('MINUTE', 50, DATEADD('DAY', -29, CURRENT_TIMESTAMP)), 'COMPLETO', 1, 3, 2, 5, 72, 90
+FROM candidatos c WHERE c.numero_candidato = '028';
+
+INSERT INTO resultados (cuestionario_id, competencia_id, puntaje_obtenido, puntaje_requerido, fecha_calculo)
+SELECT cu.id, comp.id, 7.5, 10.0, cu.fecha_fin FROM cuestionarios cu, competencias comp
+WHERE cu.clave_ingreso = 'P5Q6R7S8' AND comp.nombre = 'Lealtad';
+INSERT INTO resultados (cuestionario_id, competencia_id, puntaje_obtenido, puntaje_requerido, fecha_calculo)
+SELECT cu.id, comp.id, 10.0, 8.0, cu.fecha_fin FROM cuestionarios cu, competencias comp
+WHERE cu.clave_ingreso = 'P5Q6R7S8' AND comp.nombre = 'Trabajo en Equipo';
+
+-- ---------- Evaluacion reciente de P001 (hace 4 dias): vencimientos 1.A y 1.B ----------
+INSERT INTO evaluaciones (puesto_id, fecha_creacion) SELECT id, DATEADD('DAY', -4, CURRENT_TIMESTAMP) FROM puestos WHERE codigo = 'P001';
+
+-- 022 Lopez: ACTIVO creado hace 4 dias (maximo 72 h) -> 1.B: al entrar queda SIN_CONTESTAR
+INSERT INTO cuestionarios (evaluacion_id, candidato_id, clave_ingreso, fecha_creacion, fecha_inicio, fecha_fin, ultimo_ingreso, fecha_cambio_estado, estado, cantidad_accesos, cantidad_maxima_accesos, cantidad_preguntas_por_factor, cantidad_preguntas_por_bloque, tiempo_maximo_activo, tiempo_maximo_completar)
+SELECT (SELECT MAX(id) FROM evaluaciones), c.id, 'B2C3D4E5', DATEADD('DAY', -4, CURRENT_TIMESTAMP), NULL, NULL, NULL, DATEADD('DAY', -4, CURRENT_TIMESTAMP), 'ACTIVO', 0, 3, 2, 5, 72, 90
+FROM candidatos c WHERE c.numero_candidato = '022';
+
+-- 024 Fernandez: EN_PROCESO iniciado hace 2 h (maximo 90 min) -> 1.A por tiempo: queda INCOMPLETO
+INSERT INTO cuestionarios (evaluacion_id, candidato_id, clave_ingreso, fecha_creacion, fecha_inicio, fecha_fin, ultimo_ingreso, fecha_cambio_estado, estado, cantidad_accesos, cantidad_maxima_accesos, cantidad_preguntas_por_factor, cantidad_preguntas_por_bloque, tiempo_maximo_activo, tiempo_maximo_completar)
+SELECT (SELECT MAX(id) FROM evaluaciones), c.id, 'F6G7H8J9', DATEADD('DAY', -1, CURRENT_TIMESTAMP), DATEADD('HOUR', -2, CURRENT_TIMESTAMP), NULL, DATEADD('HOUR', -2, CURRENT_TIMESTAMP), DATEADD('HOUR', -2, CURRENT_TIMESTAMP), 'EN_PROCESO', 1, 3, 2, 5, 72, 90
+FROM candidatos c WHERE c.numero_candidato = '024';
+
+-- 026 Romero: EN_PROCESO con 4 accesos (maximo 3) -> 1.A por accesos: queda INCOMPLETO
+INSERT INTO cuestionarios (evaluacion_id, candidato_id, clave_ingreso, fecha_creacion, fecha_inicio, fecha_fin, ultimo_ingreso, fecha_cambio_estado, estado, cantidad_accesos, cantidad_maxima_accesos, cantidad_preguntas_por_factor, cantidad_preguntas_por_bloque, tiempo_maximo_activo, tiempo_maximo_completar)
+SELECT (SELECT MAX(id) FROM evaluaciones), c.id, 'K1L2M3N4', DATEADD('DAY', -1, CURRENT_TIMESTAMP), DATEADD('MINUTE', -10, CURRENT_TIMESTAMP), NULL, DATEADD('MINUTE', -10, CURRENT_TIMESTAMP), DATEADD('MINUTE', -10, CURRENT_TIMESTAMP), 'EN_PROCESO', 4, 3, 2, 5, 72, 90
+FROM candidatos c WHERE c.numero_candidato = '026';
+
+-- ---------- Evaluacion de P002 (hoy) ----------
+INSERT INTO evaluaciones (puesto_id, fecha_creacion) SELECT id, CURRENT_TIMESTAMP FROM puestos WHERE codigo = 'P002';
+
+-- 028 Sosa: ACTIVO en otro puesto, 2 preguntas por bloque -> wizard de 2 bloques (Siguiente y 8.A)
+INSERT INTO cuestionarios (evaluacion_id, candidato_id, clave_ingreso, fecha_creacion, fecha_inicio, fecha_fin, ultimo_ingreso, fecha_cambio_estado, estado, cantidad_accesos, cantidad_maxima_accesos, cantidad_preguntas_por_factor, cantidad_preguntas_por_bloque, tiempo_maximo_activo, tiempo_maximo_completar)
+SELECT (SELECT MAX(id) FROM evaluaciones), c.id, 'U9V1W2X3', CURRENT_TIMESTAMP, NULL, NULL, NULL, CURRENT_TIMESTAMP, 'ACTIVO', 0, 3, 2, 2, 72, 90
+FROM candidatos c WHERE c.numero_candidato = '028';

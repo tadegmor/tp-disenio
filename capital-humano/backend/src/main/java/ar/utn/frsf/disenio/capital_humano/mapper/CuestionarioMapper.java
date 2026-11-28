@@ -24,6 +24,10 @@ public class CuestionarioMapper {
                 .apellidoCandidato(candidato.getApellido())
                 .nombreCandidato(candidato.getNombre())
                 .nombrePuesto(cuestionario.getEvaluacion().getPuesto().getNombre())
+                .fechaInicio(cuestionario.getFechaInicio())
+                .fechaFin(cuestionario.getFechaFin())
+                .ultimoIngreso(cuestionario.getUltimoIngreso())
+                .cantidadAccesos(cuestionario.getCantidadAccesos())
                 .build();
     }
 
