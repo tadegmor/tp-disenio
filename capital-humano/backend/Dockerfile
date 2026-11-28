@@ -1,5 +1,6 @@
+# Nombres de imagen completos (docker.io/...): Podman los exige y Docker los acepta igual
 # Etapa 1: Compilación
-FROM maven:3.9-eclipse-temurin-25 AS build
+FROM docker.io/library/maven:3.9-eclipse-temurin-25 AS build
 WORKDIR /app
 
 # Cachear dependencias primero
@@ -11,7 +12,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Etapa 2: Ejecución
-FROM eclipse-temurin:25-jre
+FROM docker.io/library/eclipse-temurin:25-jre
 WORKDIR /app
 
 COPY --from=build /app/target/*.jar app.jar

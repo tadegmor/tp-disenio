@@ -1,4 +1,5 @@
-FROM node:22-alpine
+# Nombre de imagen completo (docker.io/...): Podman lo exige y Docker lo acepta igual
+FROM docker.io/library/node:22-alpine
 WORKDIR /app
 
 # Instalar dependencias
