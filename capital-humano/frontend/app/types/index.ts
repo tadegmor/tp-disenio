@@ -67,7 +67,8 @@ export type RolUsuario = "CONSULTOR" | "CANDIDATO";
 export interface SesionMiniLogin {
   rol: RolUsuario;
   nombre: string;
-  candidatoId?: string;
+  /** Número de candidato con el que ingresó (no es el id de la base). */
+  numeroCandidato?: string;
 }
 
 export type EstadoCuestionario =

@@ -19,9 +19,9 @@ function claseLink(activo: boolean): string {
   }`;
 }
 
-function resolverHref(href: string, candidatoId?: string): string {
-  if (href === "/cuestionario" && candidatoId?.trim()) {
-    return `/cuestionario?candidatoId=${encodeURIComponent(candidatoId.trim())}`;
+function resolverHref(href: string, numeroCandidato?: string): string {
+  if (href === "/cuestionario" && numeroCandidato?.trim()) {
+    return `/cuestionario?numeroCandidato=${encodeURIComponent(numeroCandidato.trim())}`;
   }
   return href;
 }
@@ -40,7 +40,7 @@ export default function Navbar() {
   const nombreMostrar = sesion?.nombre ?? "Invitado";
   const etiquetaRol =
     sesion?.rol === "CANDIDATO"
-      ? `Candidato${sesion.candidatoId ? ` #${sesion.candidatoId}` : ""}`
+      ? `Candidato${sesion.numeroCandidato ? ` N.º ${sesion.numeroCandidato}` : ""}`
       : sesion?.rol === "CONSULTOR"
       ? "Consultor"
       : "Sin rol";
@@ -65,7 +65,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <Link
-          href={sesion?.rol === "CANDIDATO" ? resolverHref("/cuestionario", sesion.candidatoId) : "/"}
+          href={sesion?.rol === "CANDIDATO" ? resolverHref("/cuestionario", sesion.numeroCandidato) : "/"}
           onClick={() => setMenuAbierto(false)}
           className="flex items-center gap-3 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
         >
@@ -80,7 +80,7 @@ export default function Navbar() {
 
         <nav aria-label="Navegación principal" className="hidden items-center gap-1 md:flex">
           {itemsVisibles.map((item) => {
-            const hrefFinal = resolverHref(item.href, sesion?.candidatoId);
+            const hrefFinal = resolverHref(item.href, sesion?.numeroCandidato);
             const activo = estaActivo(pathname, item.href);
             return (
               <Link
@@ -139,7 +139,7 @@ export default function Navbar() {
         >
           <ul className="flex flex-col gap-1">
             {itemsVisibles.map((item) => {
-              const hrefFinal = resolverHref(item.href, sesion?.candidatoId);
+              const hrefFinal = resolverHref(item.href, sesion?.numeroCandidato);
               const activo = estaActivo(pathname, item.href);
               return (
                 <li key={item.href}>

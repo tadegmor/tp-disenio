@@ -67,7 +67,7 @@ export default function PreguntasBloque({
                 </option>
                 {pregunta.opciones.map((opcion) => (
                   <option key={opcion.id} value={opcion.id}>
-                    {opcion.nombre}
+                    {opcion.descripcion}
                   </option>
                 ))}
               </select>

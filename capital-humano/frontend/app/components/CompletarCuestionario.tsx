@@ -1,15 +1,14 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
 import { type AvisoCU026, useCompletarCuestionario } from "../hooks/useCompletarCuestionario";
-import AppHeader from "./AppHeader";
 import Button from "./Button";
 import EstadoCuestionarioDialog from "./EstadoCuestionarioDialog";
 import Feedback from "./Feedback";
 import PreguntasBloque from "./PreguntasBloque";
 
-// Textos de los wireframes 026.1A, 026.1B y 026.8; los colores del estado siguen la paleta de Feedback
+// Textos de los wireframes 026.1A, 026.1B y 026.8; los colores del estado siguen la paleta de Feedback.
+// En 1.A, 1.B y 8 el CU finaliza: un único Aceptar vuelve al listado de cuestionarios del candidato.
 const AVISOS: Record<AvisoCU026, { titulo: string; mensaje: ReactNode; estado: string; claseEstado: string }> = {
   INCOMPLETO: {
     titulo: "Su cuestionario ha finalizado por exceder el tiempo límite",
@@ -23,7 +22,7 @@ const AVISOS: Record<AvisoCU026, { titulo: string; mensaje: ReactNode; estado: s
   },
   SIN_CONTESTAR: {
     titulo: "Su cuestionario ha expirado por inactividad",
-    mensaje: "Se ha alcanzado el tiempo máximo permitido. El progreso se ha guardado automáticamente.",
+    mensaje: "Se ha superado el tiempo máximo permitido para comenzar el cuestionario.",
     estado: "Sin contestar",
     claseEstado: "text-amber-700",
   },
@@ -37,14 +36,11 @@ const AVISOS: Record<AvisoCU026, { titulo: string; mensaje: ReactNode; estado: s
 
 interface CompletarCuestionarioProps {
   cuestionarioId: number;
-  ocultarHeader?: boolean;
+  /** Aceptar, Cancelar y Salir terminan el CU y vuelven al listado de cuestionarios pendientes. */
+  onSalir: () => void;
 }
 
-export default function CompletarCuestionario({
-  cuestionarioId,
-  ocultarHeader = false,
-}: CompletarCuestionarioProps) {
-  const router = useRouter();
+export default function CompletarCuestionario({ cuestionarioId, onSalir }: CompletarCuestionarioProps) {
   const cu = useCompletarCuestionario(cuestionarioId);
   const alertaRef = useRef<HTMLDivElement>(null);
 
@@ -61,16 +57,11 @@ export default function CompletarCuestionario({
     }
   }, [cu.preguntaAEnfocar]);
 
-  const candidato = cu.cuestionario
-    ? `${cu.cuestionario.nombreCandidato} ${cu.cuestionario.apellidoCandidato}`
-    : "—";
   const aviso = cu.aviso ? AVISOS[cu.aviso] : null;
-  const salir = () => router.push("/");
+  const salir = onSalir;
 
   return (
     <div className="flex-1 bg-slate-50">
-      <AppHeader usuario={candidato} rol="Candidato" />
-
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Cuestionario</h1>
@@ -174,16 +165,7 @@ export default function CompletarCuestionario({
           estado={aviso.estado}
           claseEstado={aviso.claseEstado}
         >
-          {cu.aviso === "SIN_CONTESTAR" ? (
-            <>
-              <Button onClick={cu.volverAlCuestionario}>Volver al cuestionario</Button>
-              <Button variant="secondary" onClick={salir}>
-                Salir
-              </Button>
-            </>
-          ) : (
-            <Button onClick={salir}>Aceptar</Button>
-          )}
+          <Button onClick={salir}>Aceptar</Button>
         </EstadoCuestionarioDialog>
       )}
     </div>

@@ -15,16 +15,16 @@ export interface CuestionarioDTO {
   nombrePuesto: string;
 }
 
-/** Sin ponderación: el candidato no debe conocer el puntaje de cada opción. */
-export interface OpcionRespuestaDTO {
+/** Ítem de la opción de respuesta, sin ponderación: el candidato no debe conocer el puntaje. */
+export interface ItemOpcionDTO {
   id: number;
-  nombre: string;
+  descripcion: string;
 }
 
 export interface PreguntaCuestionarioDTO {
   preguntaId: number;
   enunciado: string;
-  opciones: OpcionRespuestaDTO[];
+  opciones: ItemOpcionDTO[];
 }
 
 /** Paso del wizard que devuelve iniciarCuestionario (pasos 4, 1.C y 8.A). */
@@ -37,7 +37,7 @@ export interface BloqueCuestionarioDTO {
 
 export interface RespuestaDTO {
   preguntaId: number;
-  opcionRespuestaId: number;
+  itemOpcionId: number;
 }
 
 export interface CompletarBloqueRequestDTO {

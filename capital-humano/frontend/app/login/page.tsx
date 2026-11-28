@@ -4,24 +4,25 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { CONSULTOR_POR_DEFECTO } from "@/app/config/navigation";
 import { useSession } from "@/app/context/SessionContext";
+import { buscarCandidatos } from "@/app/services/evaluacionesApi";
 
-const IDS_EJEMPLO_CANDIDATO = ["101", "102", "103"];
+// Números de candidato de data.sql con un cuestionario para completar (010 ACTIVO, 014 EN_PROCESO)
+const NUMEROS_EJEMPLO_CANDIDATO = ["010", "014"];
 
 export default function LoginPage() {
   const router = useRouter();
   const { sesion, ingresarComoConsultor, ingresarComoCandidato } = useSession();
 
   const [nombreConsultor, setNombreConsultor] = useState(CONSULTOR_POR_DEFECTO);
-  const [candidatoId, setCandidatoId] = useState("");
-  const [nombreCandidato, setNombreCandidato] = useState("");
+  const [numeroCandidato, setNumeroCandidato] = useState("");
   const [errorCandidato, setErrorCandidato] = useState<string | null>(null);
+  const [buscandoCandidato, setBuscandoCandidato] = useState(false);
 
   useEffect(() => {
     if (sesion?.rol === "CONSULTOR" && sesion.nombre) {
       setNombreConsultor(sesion.nombre);
     } else if (sesion?.rol === "CANDIDATO") {
-      if (sesion.candidatoId) setCandidatoId(sesion.candidatoId);
-      if (sesion.nombre) setNombreCandidato(sesion.nombre);
+      if (sesion.numeroCandidato) setNumeroCandidato(sesion.numeroCandidato);
     }
   }, [sesion]);
 
@@ -31,16 +32,30 @@ export default function LoginPage() {
     router.push("/");
   };
 
-  const handleSubmitCandidato = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmitCandidato = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const idLimpio = candidatoId.trim();
-    if (!idLimpio) {
-      setErrorCandidato("Ingresá un ID de candidato para ver los cuestionarios pendientes.");
+    const numeroLimpio = numeroCandidato.trim();
+    if (!numeroLimpio) {
+      setErrorCandidato("Ingresá tu número de candidato para ver los cuestionarios pendientes.");
       return;
     }
     setErrorCandidato(null);
-    ingresarComoCandidato(idLimpio, nombreCandidato);
-    router.push(`/cuestionario?candidatoId=${encodeURIComponent(idLimpio)}`);
+    setBuscandoCandidato(true);
+    try {
+      // La búsqueda del CU025 es por "contiene": se toma el candidato con ese número exacto
+      const candidatos = await buscarCandidatos({ apellido: "", nombre: "", numeroCandidato: numeroLimpio });
+      const candidato = candidatos.find((c) => c.numeroCandidato === numeroLimpio);
+      if (!candidato) {
+        setErrorCandidato("No existe un candidato con ese número.");
+        return;
+      }
+      ingresarComoCandidato(numeroLimpio, `${candidato.nombre} ${candidato.apellido}`);
+      router.push(`/cuestionario?numeroCandidato=${encodeURIComponent(numeroLimpio)}`);
+    } catch {
+      setErrorCandidato("No se pudo verificar el número de candidato. Intente nuevamente.");
+    } finally {
+      setBuscandoCandidato(false);
+    }
   };
 
   return (
@@ -110,26 +125,29 @@ export default function LoginPage() {
               </span>
             </div>
             <p className="mt-1.5 text-sm text-slate-500">
-              Ingresá tu ID de candidato para filtrar y completar tus cuestionarios pendientes.
+              Ingresá tu número de candidato para ver y completar tus cuestionarios pendientes.
             </p>
 
             <form id="form-candidato" onSubmit={handleSubmitCandidato} className="mt-4 space-y-4">
               <div>
                 <label
-                  htmlFor="candidato-id"
+                  htmlFor="numero-candidato"
                   className="block text-sm font-medium text-slate-700"
                 >
-                  ID del candidato <span className="text-rose-600">*</span>
+                  Número de candidato <span className="text-rose-600">*</span>
                 </label>
                 <input
-                  id="candidato-id"
+                  id="numero-candidato"
                   type="text"
-                  value={candidatoId}
+                  inputMode="numeric"
+                  maxLength={20}
+                  value={numeroCandidato}
                   onChange={(e) => {
-                    setCandidatoId(e.target.value);
+                    // Igual que en el CU025: el número de candidato solo admite dígitos
+                    setNumeroCandidato(e.target.value.replace(/\D/g, ""));
                     if (errorCandidato) setErrorCandidato(null);
                   }}
-                  placeholder="Ej. 101"
+                  placeholder="Ej. 010"
                   className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 />
                 {errorCandidato && (
@@ -139,39 +157,23 @@ export default function LoginPage() {
                 )}
 
                 <div className="mt-2.5 flex flex-wrap items-center gap-2">
-                  <span className="text-xs text-slate-500">IDs de prueba:</span>
-                  {IDS_EJEMPLO_CANDIDATO.map((idEjemplo) => (
+                  <span className="text-xs text-slate-500">Números de prueba:</span>
+                  {NUMEROS_EJEMPLO_CANDIDATO.map((numeroEjemplo) => (
                     <button
-                      key={idEjemplo}
+                      key={numeroEjemplo}
                       type="button"
                       onClick={() => {
-                        setCandidatoId(idEjemplo);
+                        setNumeroCandidato(numeroEjemplo);
                         setErrorCandidato(null);
                       }}
                       className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 font-mono text-xs text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-100"
                     >
-                      {idEjemplo}
+                      {numeroEjemplo}
                     </button>
                   ))}
                 </div>
               </div>
 
-              <div>
-                <label
-                  htmlFor="nombre-candidato"
-                  className="block text-sm font-medium text-slate-700"
-                >
-                  Nombre (opcional)
-                </label>
-                <input
-                  id="nombre-candidato"
-                  type="text"
-                  value={nombreCandidato}
-                  onChange={(e) => setNombreCandidato(e.target.value)}
-                  placeholder="Ej. Lucía Gómez"
-                  className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                />
-              </div>
             </form>
           </div>
 
@@ -179,9 +181,10 @@ export default function LoginPage() {
             <button
               type="submit"
               form="form-candidato"
-              className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+              disabled={buscandoCandidato}
+              className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-300"
             >
-              Ver cuestionarios pendientes
+              {buscandoCandidato ? "Verificando…" : "Ver cuestionarios pendientes"}
             </button>
           </div>
         </section>

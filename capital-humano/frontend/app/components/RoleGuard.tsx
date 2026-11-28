@@ -12,11 +12,11 @@ interface RoleGuardProps {
 
 function resolverDestinoPorRol(
   rol: RolUsuario,
-  candidatoId?: string
+  numeroCandidato?: string
 ): string {
   if (rol === "CANDIDATO") {
-    if (candidatoId?.trim()) {
-      return `/cuestionario?candidatoId=${encodeURIComponent(candidatoId.trim())}`;
+    if (numeroCandidato?.trim()) {
+      return `/cuestionario?numeroCandidato=${encodeURIComponent(numeroCandidato.trim())}`;
     }
     return "/cuestionario";
   }
@@ -38,7 +38,7 @@ export default function RoleGuard({ allowedRoles, children }: RoleGuardProps) {
     }
 
     if (!tieneRol(allowedRoles)) {
-      router.replace(resolverDestinoPorRol(sesion.rol, sesion.candidatoId));
+      router.replace(resolverDestinoPorRol(sesion.rol, sesion.numeroCandidato));
     }
   }, [listo, sesion, allowedRoles, tieneRol, router]);
 

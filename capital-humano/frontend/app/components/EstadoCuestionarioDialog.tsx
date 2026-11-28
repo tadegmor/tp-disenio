@@ -7,7 +7,7 @@ interface EstadoCuestionarioDialogProps {
   mensaje: ReactNode;
   estado: string;
   claseEstado: string;
-  /** Botones del pie (Aceptar, o Volver al cuestionario / Salir). */
+  /** Botón Aceptar del pie. */
   children: ReactNode;
 }
 

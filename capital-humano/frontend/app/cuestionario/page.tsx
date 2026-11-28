@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import ClaveCuestionarioDialog from "../components/ClaveCuestionarioDialog";
 import CompletarCuestionario from "../components/CompletarCuestionario";
 import RoleGuard from "../components/RoleGuard";
 import { useSession } from "../context/SessionContext";
@@ -15,34 +16,37 @@ function CuestionarioFlujoContenido() {
   const searchParams = useSearchParams();
   const { sesion } = useSession();
 
-  const idDesdeQuery = searchParams.get("candidatoId")?.trim() ?? "";
-  const idPorDefecto = idDesdeQuery || sesion?.candidatoId?.trim() || "";
+  const numeroDesdeQuery = searchParams.get("numeroCandidato")?.trim() ?? "";
+  const numeroPorDefecto = numeroDesdeQuery || sesion?.numeroCandidato?.trim() || "";
 
-  const [inputId, setInputId] = useState(idPorDefecto);
+  const [inputNumero, setInputNumero] = useState(numeroPorDefecto);
   const [cuestionarios, setCuestionarios] = useState<CuestionarioDTO[]>([]);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cuestionarioSeleccionadoId, setCuestionarioSeleccionadoId] = useState<number | null>(
     null,
   );
+  // CU001 3.A: antes de abrir un cuestionario se pide su clave de ingreso
+  const [cuestionarioAValidar, setCuestionarioAValidar] = useState<CuestionarioDTO | null>(null);
+  // Al volver del CU026 se vuelve a consultar: el cuestionario pudo pasar a COMPLETO, INCOMPLETO o SIN_CONTESTAR
+  const [recargas, setRecargas] = useState(0);
 
   useEffect(() => {
-    setInputId(idPorDefecto);
+    setInputNumero(numeroPorDefecto);
     setCuestionarioSeleccionadoId(null);
-  }, [idPorDefecto]);
+  }, [numeroPorDefecto]);
 
   useEffect(() => {
-    const limpio = idPorDefecto.trim();
+    const limpio = numeroPorDefecto.trim();
     if (!limpio) {
       setCuestionarios([]);
       setError(null);
       return;
     }
 
-    const candidatoNum = Number.parseInt(limpio, 10);
-    if (!Number.isInteger(candidatoNum) || candidatoNum <= 0) {
+    if (!/^\d+$/.test(limpio)) {
       setCuestionarios([]);
-      setError("El ID de candidato debe ser un número entero positivo.");
+      setError("El número de candidato solo puede contener dígitos.");
       return;
     }
 
@@ -50,7 +54,7 @@ function CuestionarioFlujoContenido() {
     setCargando(true);
     setError(null);
 
-    listarCuestionariosPorCandidato(candidatoNum)
+    listarCuestionariosPorCandidato(limpio)
       .then((data) => {
         if (!cancelado) setCuestionarios(data);
       })
@@ -67,7 +71,7 @@ function CuestionarioFlujoContenido() {
     return () => {
       cancelado = true;
     };
-  }, [idPorDefecto]);
+  }, [numeroPorDefecto, recargas]);
 
   const pendientes = useMemo(() => {
     return cuestionarios.filter((c) => ESTADOS_PENDIENTES.has(c.estado));
@@ -79,11 +83,16 @@ function CuestionarioFlujoContenido() {
     return `${primero.nombreCandidato} ${primero.apellidoCandidato}`.trim();
   }, [cuestionarios]);
 
+  const volverAlListado = () => {
+    setCuestionarioSeleccionadoId(null);
+    setRecargas((n) => n + 1);
+  };
+
   const aplicarCandidatoEnUrl = (valor: string) => {
     const limpio = valor.trim();
     setCuestionarioSeleccionadoId(null);
     if (limpio) {
-      router.replace(`/cuestionario?candidatoId=${encodeURIComponent(limpio)}`);
+      router.replace(`/cuestionario?numeroCandidato=${encodeURIComponent(limpio)}`);
     } else {
       router.replace("/cuestionario");
     }
@@ -95,13 +104,13 @@ function CuestionarioFlujoContenido() {
         <div className="mb-4">
           <button
             type="button"
-            onClick={() => setCuestionarioSeleccionadoId(null)}
+            onClick={volverAlListado}
             className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
           >
             ← Volver a cuestionarios pendientes
           </button>
         </div>
-        <CompletarCuestionario cuestionarioId={cuestionarioSeleccionadoId} ocultarHeader />
+        <CompletarCuestionario cuestionarioId={cuestionarioSeleccionadoId} onSalir={volverAlListado} />
       </div>
     );
   }
@@ -117,26 +126,26 @@ function CuestionarioFlujoContenido() {
             Cuestionarios pendientes
           </h1>
           <p className="mt-1 text-sm text-slate-600">
-            {idPorDefecto
+            {numeroPorDefecto
               ? `Evaluaciones pendientes para ${
-                  candidatoNombreCompleto ?? `el candidato ID "${idPorDefecto}"`
+                  candidatoNombreCompleto ?? `el candidato N.º "${numeroPorDefecto}"`
                 }.`
-              : "Ingresá un ID de candidato para consultar sus cuestionarios pendientes."}
+              : "Ingresá un número de candidato para consultar sus cuestionarios pendientes."}
           </p>
         </div>
 
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            aplicarCandidatoEnUrl(inputId);
+            aplicarCandidatoEnUrl(inputNumero);
           }}
           className="flex items-center gap-2"
         >
           <input
             type="text"
-            value={inputId}
-            onChange={(e) => setInputId(e.target.value)}
-            placeholder="ID candidato (ej. 101)"
+            value={inputNumero}
+            onChange={(e) => setInputNumero(e.target.value)}
+            placeholder="N.º candidato (ej. 010)"
             className="w-44 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
           />
           <button
@@ -148,9 +157,9 @@ function CuestionarioFlujoContenido() {
         </form>
       </div>
 
-      {!idPorDefecto ? (
+      {!numeroPorDefecto ? (
         <div className="mt-8 rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
-          <p className="text-sm font-medium text-slate-800">No se especificó un ID de candidato</p>
+          <p className="text-sm font-medium text-slate-800">No se especificó un número de candidato</p>
         </div>
       ) : cargando ? (
         <div className="mt-8 rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
@@ -163,7 +172,7 @@ function CuestionarioFlujoContenido() {
       ) : pendientes.length === 0 ? (
         <div className="mt-8 rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
           <p className="text-base font-semibold text-slate-900">
-            No hay cuestionarios pendientes para el candidato ID &ldquo;{idPorDefecto}&rdquo;
+            No hay cuestionarios pendientes para el candidato N.º &ldquo;{numeroPorDefecto}&rdquo;
           </p>
         </div>
       ) : (
@@ -189,7 +198,7 @@ function CuestionarioFlujoContenido() {
 
               <button
                 type="button"
-                onClick={() => setCuestionarioSeleccionadoId(cuest.cuestionarioId)}
+                onClick={() => setCuestionarioAValidar(cuest)}
                 className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
               >
                 Completar cuestionario
@@ -197,6 +206,18 @@ function CuestionarioFlujoContenido() {
             </article>
           ))}
         </div>
+      )}
+
+      {cuestionarioAValidar && (
+        <ClaveCuestionarioDialog
+          cuestionarioId={cuestionarioAValidar.cuestionarioId}
+          nombrePuesto={cuestionarioAValidar.nombrePuesto}
+          onValidada={() => {
+            setCuestionarioSeleccionadoId(cuestionarioAValidar.cuestionarioId);
+            setCuestionarioAValidar(null);
+          }}
+          onCancelar={() => setCuestionarioAValidar(null)}
+        />
       )}
     </main>
   );

@@ -11,13 +11,14 @@ import {
 } from "react";
 import type { RolUsuario, SesionMiniLogin } from "@/app/types";
 
-const STORAGE_KEY = "capital_humano_mini_sesion_v1";
+// v2: el candidato ingresa con su número de candidato (las sesiones v1 guardaban el id)
+const STORAGE_KEY = "capital_humano_mini_sesion_v2";
 
 interface SessionContextValue {
   sesion: SesionMiniLogin | null;
   listo: boolean;
   ingresarComoConsultor: (nombre?: string) => void;
-  ingresarComoCandidato: (candidatoId: string, nombre?: string) => void;
+  ingresarComoCandidato: (numeroCandidato: string, nombre: string) => void;
   cerrarSesion: () => void;
   tieneRol: (roles: RolUsuario[]) => boolean;
 }
@@ -65,12 +66,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   );
 
   const ingresarComoCandidato = useCallback(
-    (candidatoId: string, nombre?: string) => {
-      const limpio = candidatoId.trim();
+    (numeroCandidato: string, nombre: string) => {
+      const limpio = numeroCandidato.trim();
       persistir({
         rol: "CANDIDATO",
-        candidatoId: limpio,
-        nombre: nombre?.trim() || `Candidato #${limpio}`,
+        numeroCandidato: limpio,
+        nombre: nombre.trim(),
       });
     },
     [persistir]

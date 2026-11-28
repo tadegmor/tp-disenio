@@ -70,6 +70,11 @@
     		<artifactId>h2</artifactId>
     		<scope>runtime</scope>
 		</dependency>
+		<!-- Spring Boot 4: la consola web de H2 (/h2-console) es un módulo aparte -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-h2console</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
