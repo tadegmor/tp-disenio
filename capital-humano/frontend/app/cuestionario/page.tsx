@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import ClaveCuestionarioDialog from "../components/ClaveCuestionarioDialog";
 import CompletarCuestionario from "../components/CompletarCuestionario";
 import RoleGuard from "../components/RoleGuard";
 import { useSession } from "../context/SessionContext";
@@ -25,6 +26,8 @@ function CuestionarioFlujoContenido() {
   const [cuestionarioSeleccionadoId, setCuestionarioSeleccionadoId] = useState<number | null>(
     null,
   );
+  // CU001 3.A: antes de abrir un cuestionario se pide su clave de ingreso
+  const [cuestionarioAValidar, setCuestionarioAValidar] = useState<CuestionarioDTO | null>(null);
   // Al volver del CU026 se vuelve a consultar: el cuestionario pudo pasar a COMPLETO, INCOMPLETO o SIN_CONTESTAR
   const [recargas, setRecargas] = useState(0);
 
@@ -195,7 +198,7 @@ function CuestionarioFlujoContenido() {
 
               <button
                 type="button"
-                onClick={() => setCuestionarioSeleccionadoId(cuest.cuestionarioId)}
+                onClick={() => setCuestionarioAValidar(cuest)}
                 className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
               >
                 Completar cuestionario
@@ -203,6 +206,18 @@ function CuestionarioFlujoContenido() {
             </article>
           ))}
         </div>
+      )}
+
+      {cuestionarioAValidar && (
+        <ClaveCuestionarioDialog
+          cuestionarioId={cuestionarioAValidar.cuestionarioId}
+          nombrePuesto={cuestionarioAValidar.nombrePuesto}
+          onValidada={() => {
+            setCuestionarioSeleccionadoId(cuestionarioAValidar.cuestionarioId);
+            setCuestionarioAValidar(null);
+          }}
+          onCancelar={() => setCuestionarioAValidar(null)}
+        />
       )}
     </main>
   );

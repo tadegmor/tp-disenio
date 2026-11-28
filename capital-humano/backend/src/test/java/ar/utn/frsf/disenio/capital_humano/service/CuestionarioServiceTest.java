@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import ar.utn.frsf.disenio.capital_humano.dto.BloqueCuestionarioDTO;
 import ar.utn.frsf.disenio.capital_humano.dto.CompletarBloqueRequestDTO;
 import ar.utn.frsf.disenio.capital_humano.dto.RespuestaDTO;
+import ar.utn.frsf.disenio.capital_humano.dto.ValidarClaveRequestDTO;
 import ar.utn.frsf.disenio.capital_humano.exception.SolicitudInvalidaException;
 import ar.utn.frsf.disenio.capital_humano.model.Cuestionario;
 import ar.utn.frsf.disenio.capital_humano.model.EstadoCuestionario;
@@ -119,6 +120,16 @@ class CuestionarioServiceTest {
                     assertThat(dto.getEstado()).isEqualTo(EstadoCuestionario.ACTIVO);
                 });
         assertThat(cuestionarioService.listarPorNumeroCandidato("999")).isEmpty();
+    }
+
+    @Test
+    void laClaveTieneQueCorresponderAlCuestionario() {
+        Long id = porClave(CLAVE_ACTIVO).getId();
+        cuestionarioService.validarClave(id, new ValidarClaveRequestDTO("a1s2d3f4")); // no distingue mayúsculas
+        assertThatThrownBy(() -> cuestionarioService.validarClave(id, new ValidarClaveRequestDTO(CLAVE_EN_PROCESO)))
+                .isInstanceOf(SolicitudInvalidaException.class);
+        assertThatThrownBy(() -> cuestionarioService.validarClave(id, new ValidarClaveRequestDTO("")))
+                .isInstanceOf(SolicitudInvalidaException.class);
     }
 
     private Cuestionario porClave(String clave) {

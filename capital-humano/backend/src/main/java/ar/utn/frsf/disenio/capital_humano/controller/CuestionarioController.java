@@ -3,6 +3,7 @@ package ar.utn.frsf.disenio.capital_humano.controller;
 import ar.utn.frsf.disenio.capital_humano.dto.BloqueCuestionarioDTO;
 import ar.utn.frsf.disenio.capital_humano.dto.CompletarBloqueRequestDTO;
 import ar.utn.frsf.disenio.capital_humano.dto.CuestionarioDTO;
+import ar.utn.frsf.disenio.capital_humano.dto.ValidarClaveRequestDTO;
 import ar.utn.frsf.disenio.capital_humano.service.CuestionarioService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,13 @@ public class CuestionarioController {
     @GetMapping(params = "numeroCandidato")
     public ResponseEntity<List<CuestionarioDTO>> listarPorNumeroCandidato(@RequestParam String numeroCandidato) {
         return ResponseEntity.ok(cuestionarioService.listarPorNumeroCandidato(numeroCandidato));
+    }
+
+    /** CU001 3.A: el candidato ingresa la clave del cuestionario antes de completarlo (204; 400 si no corresponde). */
+    @PostMapping("/{id}/validar-clave")
+    public ResponseEntity<Void> validarClave(@PathVariable Long id, @RequestBody ValidarClaveRequestDTO request) {
+        cuestionarioService.validarClave(id, request);
+        return ResponseEntity.noContent().build();
     }
 
     /** Paso 1: estado del cuestionario ya verificado (1.A / 1.B). 404 si no existe. */

@@ -5,8 +5,10 @@ import ar.utn.frsf.disenio.capital_humano.dto.BloqueCuestionarioDTO;
 import ar.utn.frsf.disenio.capital_humano.dto.CompletarBloqueRequestDTO;
 import ar.utn.frsf.disenio.capital_humano.dto.CuestionarioDTO;
 import ar.utn.frsf.disenio.capital_humano.dto.RespuestaDTO;
+import ar.utn.frsf.disenio.capital_humano.dto.ValidarClaveRequestDTO;
 import ar.utn.frsf.disenio.capital_humano.exception.ConflictoException;
 import ar.utn.frsf.disenio.capital_humano.exception.RecursoNoEncontradoException;
+import ar.utn.frsf.disenio.capital_humano.exception.SolicitudInvalidaException;
 import ar.utn.frsf.disenio.capital_humano.exception.TransicionInvalidaException;
 import ar.utn.frsf.disenio.capital_humano.mapper.CuestionarioMapper;
 import ar.utn.frsf.disenio.capital_humano.model.BloqueCuestionario;
@@ -51,6 +53,19 @@ public class CuestionarioService {
         return cuestionarioRepository.buscarPorNumeroCandidato(TextoUtil.normalizar(numeroCandidato)).stream()
                 .map(cuestionarioMapper::mapToDTO)
                 .toList();
+    }
+
+    /**
+     * CU001 3.A.2: la clave ingresada tiene que corresponder al cuestionario. Se compara en el backend
+     * para que la clave nunca viaje al front.
+     */
+    public void validarClave(Long cuestionarioId, ValidarClaveRequestDTO request) {
+        Cuestionario cuestionario = obtener(cuestionarioId);
+        String clave = request == null ? "" : TextoUtil.normalizar(request.getClave()).toUpperCase();
+        if (!cuestionario.getClaveIngreso().equals(clave)) {
+            throw new SolicitudInvalidaException(
+                    "Los datos ingresados no son válidos o no existe un cuestionario para el Candidato");
+        }
     }
 
     /** Paso 1: si se superaron los plazos o los accesos, el patrón State lo pasa a INCOMPLETO (1.A) o SIN_CONTESTAR (1.B). */

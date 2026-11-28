@@ -20,6 +20,16 @@ export async function listarCuestionariosPorCandidato(
   return res.json();
 }
 
+/** CU001 3.A: valida en el backend la clave de ingreso del cuestionario (la clave nunca viaja del backend al front). */
+export async function validarClaveCuestionario(cuestionarioId: number, clave: string): Promise<void> {
+  const res = await fetch(`${CUESTIONARIOS_URL}/${cuestionarioId}/validar-clave`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ clave }),
+  });
+  if (!res.ok) throw await leerError(res);
+}
+
 /** Paso 1: el backend verifica accesos y tiempos (1.A / 1.B) antes de devolver el estado. */
 export async function consultarCuestionario(cuestionarioId: number): Promise<CuestionarioDTO> {
   const res = await fetch(`${CUESTIONARIOS_URL}/${cuestionarioId}`, { cache: "no-store" });
